@@ -1,7 +1,6 @@
 from os import startfile
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from celluloid import Camera
 
 import AnimationElement
 
@@ -26,6 +25,8 @@ class AnimationEngine:
         self._axes.set_ylim([-100, 100])
         self._camera = Camera(self._fig)
 
+        self._writer = animation.writers['ffmpeg'](fps=self._fps)
+
         self._axes.set_position([0, 0, 1, 1])
         self._axes.set_facecolor('#008cff')
 
@@ -36,14 +37,9 @@ class AnimationEngine:
         self._animElements.append(elem)
 
     # Runtime in seconds
-    def animate(self, runtime: float):
-        for self._frame in range(int(runtime * self._fps)):
-            for elem in self._animElements:
-                elem.update(self._frame, self._fps)
-            self._camera.snap()
-
-    def save(self, filename: str):
-        writer = animation.writers['ffmpeg'](fps=self._fps)
-        anim = self._camera.animate()
-        anim.save(filename + '.mp4', writer=writer, dpi=self._resolutionY)
-        startfile(filename + '.mp4')
+    def animate(self, filename: str, runtime: float):
+        with self._writer.saving(self._fig, filename+'.mp4', dpi=self._resolutionY):
+            for self._frame in range(int(runtime * self._fps)):
+                for elem in self._animElements:
+                    elem.update(self._frame, self._fps)
+                self._writer.grab_frame()

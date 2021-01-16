@@ -2,13 +2,14 @@ from myMaths import Vec2D
 from mpl_toolkits.axes_grid1.inset_locator import (InsetPosition)
 import matplotlib.pyplot as plt
 
+
 # Animation Element, start time and end time
 class AnimationElement:
-    def __init__(self, main_axes, start: float, end: float, position: Vec2D):
+    def __init__(self, main_axes, start: float, duration: float, position: Vec2D):
         self._exists = False
 
         self._start = start
-        self._end = end
+        self._end = start + duration
         self._position = position
 
         self._main_axes = main_axes
@@ -38,10 +39,9 @@ class AnimationElement:
 
 
 class TextElement(AnimationElement):
-    def __init__(self, main_axes,start: float, end: float, position: Vec2D,
+    def __init__(self, main_axes, start: float, duration: float, position: Vec2D,
                  s_text: str, **kwargs):
-
-        AnimationElement.__init__(self, main_axes, start, end, position)
+        AnimationElement.__init__(self, main_axes, start, duration, position)
 
         self._textArgs = kwargs
         self._text = s_text
@@ -55,22 +55,24 @@ class TextElement(AnimationElement):
 
 
 class FigElement(AnimationElement):
-    def __init__(self, main_axes, start: float, end: float, position: Vec2D,
+    def __init__(self, main_axes, start: float, duration: float, position: Vec2D,
                  fig):
-        AnimationElement.__init__(self, main_axes, start, end, position)
+        AnimationElement.__init__(self, main_axes, start, duration, position)
 
         self._fig = fig
-        self._fig.axes = None
+        self._fig.axes = plt.axes([0, 0, 1, 1])
+        ip = InsetPosition(self._main_axes, [0.25, 0.25, .5, .5])
+        self._fig.axes.set_axes_locator(ip)
+        self._fig.axes.set_axis_off()
 
     def _update_element(self, progress):
-        if self._fig.axes is None:
-            self._fig.axes = plt.axes([0, 0, 1, 1])
-            ip = InsetPosition(self._main_axes, [0.25, 0.25, .5, .5])
-            self._fig.axes.set_axes_locator(ip)
+        if not self._fig.started:
+            self._fig.axes.set_axis_on()
+            self._fig.started = True
 
         self._fig.plot(progress)
         return 0
 
     def _cleanup_element(self):
-
+        self._fig.axes.remove()
         return 0

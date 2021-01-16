@@ -8,12 +8,13 @@ import numpy as np
 
 class Figure:
     def __init__(self):
+        self.started = False
 
         # Data for plotting
         self.t = np.arange(0.0, 2.0, 0.01)
 
     def plot(self, progress):
-        self.axes.plot(self.t, 1 + np.sin(2 * np.pi * (self.t - progress)), color='white')
+        self.axes.plot(self.t, 1 + np.sin(2 * np.pi * (self.t - progress)), color='blue')
 
 
 if __name__ == '__main__':
@@ -24,5 +25,4 @@ if __name__ == '__main__':
                                verticalalignment='center', color='white'))
 
     ae.add_element(FigElement(axes, 3, 8, Vec2D(0, 0), Figure()))
-    ae.animate(10)
-    ae.save('test2')
+    ae.animate('test2', 10)

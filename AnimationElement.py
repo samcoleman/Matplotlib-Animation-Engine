@@ -1,12 +1,13 @@
 from myMaths import Vec2D
-from mpl_toolkits.axes_grid1.inset_locator import (InsetPosition)
-import matplotlib.pyplot as plt
+import math
+from Figures import FigureObj
+
 
 
 # Animation Element, start time and end time
 class AnimationElement:
     def __init__(self, main_axes, start: float, duration: float, position: Vec2D):
-        self._exists = False
+        self._instantiated = False
 
         self._start = start
         self._end = start + duration
@@ -47,7 +48,11 @@ class TextElement(AnimationElement):
         self._text = s_text
 
     def _update_element(self, progress):
-        self._textElem = self._main_axes.text(self._position.x, self._position.y, self._text, self._textArgs)
+        if not self._instantiated:
+            self._instantiated = True
+            self._textElem = self._main_axes.text(self._position.x, self._position.y,
+                                                  self._text, self._textArgs)
+        self._textElem.set_position((self._position.x + 10 * math.sin(4 * math.pi * progress), self._position.y))
 
     def _cleanup_element(self):
         self._textElem.set_visible(False)
@@ -56,23 +61,19 @@ class TextElement(AnimationElement):
 
 class FigElement(AnimationElement):
     def __init__(self, main_axes, start: float, duration: float, position: Vec2D,
-                 fig):
+                 figObj: FigureObj):
         AnimationElement.__init__(self, main_axes, start, duration, position)
 
-        self._fig = fig
-        self._fig.axes = plt.axes([0, 0, 1, 1])
-        ip = InsetPosition(self._main_axes, [0.25, 0.25, .5, .5])
-        self._fig.axes.set_axes_locator(ip)
-        self._fig.axes.set_axis_off()
+        self._figObj = figObj
 
     def _update_element(self, progress):
-        if not self._fig.started:
-            self._fig.axes.set_axis_on()
-            self._fig.started = True
+        if not self._instantiated:
+            self._instantiated = True
+            self._figObj.plot()
 
-        self._fig.plot(progress)
+        self._figObj.update(progress)
         return 0
 
     def _cleanup_element(self):
-        self._fig.axes.remove()
+        self._figObj.cleanup()
         return 0

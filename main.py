@@ -1,28 +1,27 @@
 from AnimationEngine import AnimationEngine
-
 from AnimationElement import *
-
+import math
 
 import numpy as np
 
+import Figures as fgs
 
-class Figure:
-    def __init__(self):
-        self.started = False
 
-        # Data for plotting
-        self.t = np.arange(0.0, 2.0, 0.01)
-
-    def plot(self, progress):
-        self.axes.plot(self.t, 1 + np.sin(2 * np.pi * (self.t - progress)), color='blue')
+def fn(t, p):
+    return 1 + np.sin(t-p)
 
 
 if __name__ == '__main__':
     ae = AnimationEngine(1080, 24)
-    axes = ae.get_axes()
+    main_axes = ae.get_axes()
+    main_fig = ae.get_fig()
 
-    ae.add_element(TextElement(axes, 5, 10, Vec2D(0, 75), 'Hello', horizontalalignment='center',
-                               verticalalignment='center', color='white'))
+    ae.add_element(TextElement(main_axes, 0, 10, Vec2D(0, 75), 'Top', horizontalalignment='center',
+                               verticalalignment='center', color='white', fontsize=72))
 
-    ae.add_element(FigElement(axes, 3, 8, Vec2D(0, 0), Figure()))
-    ae.animate('test2', 10)
+    ae.add_element(TextElement(main_axes, 0, 10, Vec2D(0, -75), 'Bottom', horizontalalignment='center',
+                               verticalalignment='center', color='white', fontsize=72))
+
+    ae.add_element(FigElement(main_axes, 3, 5, Vec2D(0, 0), fgs.FigureObj3D(main_fig)))
+    ae.add_element(FigElement(main_axes, 3, 5, Vec2D(0, 0), fgs.FigureObj2D(main_fig, fn)))
+    ae.render('test2', 10)

@@ -3,6 +3,7 @@ from os import startfile
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from matplotlib.widgets import Slider
 
 import AnimationElement
 
@@ -51,21 +52,34 @@ class AnimationEngine:
         self._axes.set_facecolor('#008cff')
         # self._axes.set_facecolor('black')
 
-    def get_axes(self):
-        return self._axes
-
     def get_fig(self):
-        return self._fig
+        return self._fig, self._axes
 
     def add_element(self, elem: AnimationElement):
         self._animElements.append(elem)
 
+    def _update_elements(self):
+        for elem in self._animElements:
+            elem.update(self._frame, self._fps)
+
+    def _slider_update(self, val):
+        self._frame = val
+        self._update_elements()
+        self._fig.canvas.draw()
+
+    def browse(self):
+        frame_slider_ax = self._fig.add_axes([0.25, 0.1, 0.65, 0.03], facecolor='black', zorder=10000)
+        frame_slider = Slider(frame_slider_ax, 'Frame', 0, 239, valinit=100, valstep=1)
+        self._update_elements()
+        frame_slider.on_changed(self._slider_update)
+        plt.show()
+
     # Runtime in seconds
     def render(self, filename: str, runtime: float):
+        self._frame = 0
         with self._writer.saving(self._fig, filename+'.mp4', dpi=self._resolutionY/9):
             for self._frame in range(int(runtime * self._fps)):
-                for elem in self._animElements:
-                    elem.update(self._frame, self._fps)
+                self._update_elements()
                 self._writer.grab_frame()
                 progress_bar(self._frame + 1, int(runtime * self._fps))
         startfile(filename + '.mp4')

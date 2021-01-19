@@ -20,7 +20,7 @@ class AnimationElement:
             # If active and not instantiated, instantiate!
             if not self._instantiated:
                 self._instantiated = True
-                self._instantiate()
+                return self._instantiate()
             # Update element with progress state
             try:
                 return self._update(progress)

@@ -50,7 +50,6 @@ class AnimationEngine:
 
         self._axes.set_position([0, 0, 1, 1])
         self._axes.set_facecolor('#008cff')
-        # self._axes.set_facecolor('black')
 
     def get_fig(self):
         return self._fig, self._axes
@@ -68,7 +67,7 @@ class AnimationEngine:
         self._fig.canvas.draw()
 
     def browse(self):
-        frame_slider_ax = self._fig.add_axes([0.25, 0.1, 0.65, 0.03], facecolor='black', zorder=10000)
+        frame_slider_ax = self._fig.add_axes([0.25, 0.1, 0.65, 0.03], label='frame_slider', facecolor='black', zorder=10000)
         frame_slider = Slider(frame_slider_ax, 'Frame', 0, 239, valinit=0, valstep=1)
         self._update_elements()
         frame_slider.on_changed(self._slider_update)

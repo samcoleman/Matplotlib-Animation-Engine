@@ -14,7 +14,6 @@ class TextElement(AnimationElement):
         self._text = s_text
 
     def _instantiate(self):
-        print("T")
         self._textElem = self._axes.text(self._position.x, self._position.y, self._text, self._textArgs)
 
     def _update(self, progress):

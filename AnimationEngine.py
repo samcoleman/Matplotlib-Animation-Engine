@@ -69,7 +69,7 @@ class AnimationEngine:
 
     def browse(self):
         frame_slider_ax = self._fig.add_axes([0.25, 0.1, 0.65, 0.03], facecolor='black', zorder=10000)
-        frame_slider = Slider(frame_slider_ax, 'Frame', 0, 239, valinit=100, valstep=1)
+        frame_slider = Slider(frame_slider_ax, 'Frame', 0, 239, valinit=0, valstep=1)
         self._update_elements()
         frame_slider.on_changed(self._slider_update)
         plt.show()

@@ -2,14 +2,18 @@ from AnimationElement import AnimationElement
 from myMaths import Vec2D
 
 
-class Figure2DElement(AnimationElement):
-    def __init__(self, start: float, duration: float, position: Vec2D,
-                 main_fig):
+class FigureElement(AnimationElement):
+    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D,
+                 main_fig, label, projection):
         super().__init__(start, duration, position)
+        self._size = size
         self._main_fig = main_fig
+        self.label = label
+        self.projection = projection
 
     def _inset(self):
-        self._axes = self._main_fig.add_axes([0.1, 0.1, 0.8, 0.8], label='2D', anchor='C', projection='rectilinear')
+        self._axes = self._main_fig.add_axes([self._position.x, self._position.y, self._size.x, self._size.y],
+                                             label=self.label, anchor='C', projection=self.projection)
 
     def _style(self):
         self._axes.patch.set_alpha(0)
@@ -26,69 +30,15 @@ class Figure2DElement(AnimationElement):
         self._inset()
         self._style()
         try:
-            x, y = self.fn(0)
-            self._my_plot, = self._axes.plot(x, y, color='white')
-        except Exception as detail:
-            print("Error:", detail)
-        self._axes.set_axis_on()
-        return 0
-
-    def fn(self, p):
-        raise Exception("Figure Function Not Implemented")
-
-    def _update(self, progress):
-        try:
-            x, y = self.fn(progress)
-            self._my_plot.set_data(x, y)
+            return self._init()
         except Exception as detail:
             print("Error:", detail)
         return 0
 
-    def _cleanup(self):
-        self._axes.remove()
-        return 0
+    def _init(self):
+        raise Exception("Figure Init Not Implemented")
 
-
-class Figure3DElement(AnimationElement):
-    def __init__(self, start: float, duration: float, position: Vec2D,
-                 main_fig):
-        super().__init__(start, duration, position)
-        self._fig = main_fig
-
-    def _inset(self):
-        self._axes = self._fig.add_axes([0.1, 0.1, 0.8, 0.8], label='3D', anchor='C', projection='3d')
-
-    def _style(self):
-        self._axes.patch.set_alpha(0)
-
-    def _instantiate(self):
-        self._inset()
-        self._style()
-        self._axes.set_xlim(-2, 2)
-        self._axes.set_ylim(-2, 2)
-        self._axes.set_zlim(-2, 2)
-        try:
-            x, y, z = self.fn(0)
-            self._my_plot = self._axes.plot_wireframe(x, y, z)
-        except Exception as detail:
-            print("Error:", detail)
-        self._axes.set_axis_on()
-        return 0
-
-    def fn(self, p):
-        raise Exception("Figure Function Not Implemented")
-
-    def _update(self, progress):
-        try:
-            x, y, z = self.fn(progress)
-            #self._my_plot = self._axes.plot_wireframe(x, y, z)
-        except Exception as detail:
-            print("Error:", detail)
-        self._axes.view_init(elev=30., azim=progress*360)
-        self._axes.set_anchor((0.5+progress/2, 0.5))
-        self._axes.set_xlim(-2+progress, 2-progress)
-        self._axes.set_ylim(-2+progress, 2-progress)
-        self._axes.set_zlim(-2+progress, 2-progress)
+    def _update(self, p):
         return 0
 
     def _cleanup(self):

@@ -18,13 +18,13 @@ matplotlib.rcParams['text.hinting'] = 'auto'
 matplotlib.rcParams['text.hinting_factor'] = 8
 
 
-def progress_bar(current, total):
+def progress_bar(current, total, elem, axes):
     bar_length = 40
     percent = float(current) * 100 / total
     arrow = '#' * int(percent/100 * bar_length)
     spaces = ' ' * (bar_length - len(arrow))
 
-    print('\r', 'Render Progress: [%s%s] %d %%' % (arrow, spaces, percent), end='')
+    print('\r', 'Render Progress: [%s%s] %d %% Elements: %s Axes: %s' % (arrow, spaces, percent, elem, axes), end='')
 
 
 class AnimationEngine:
@@ -46,7 +46,7 @@ class AnimationEngine:
         self._axes.set_xlim([-100, 100])
         self._axes.set_ylim([-100, 100])
 
-        self._writer = animation.writers['ffmpeg'](fps=self._fps, codec=None, bitrate=1000)
+        self._writer = animation.writers['ffmpeg'](fps=self._fps, codec=None, bitrate=8000)
 
         self._axes.set_position([0, 0, 1, 1])
         self._axes.set_facecolor('#008cff')
@@ -80,5 +80,5 @@ class AnimationEngine:
             for self._frame in range(int(runtime * self._fps)):
                 self._update_elements()
                 self._writer.grab_frame()
-                progress_bar(self._frame + 1, int(runtime * self._fps))
+                progress_bar(self._frame + 1, int(runtime * self._fps), len(self._animElements), len(self._fig.axes))
         startfile(filename + '.mp4')

@@ -2,11 +2,11 @@ from FigureElements import FigureElement
 import numpy as np
 from myMaths import Vec2D
 
-import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 
 import sympy
 from sympy.abc import x, y
+from scipy import integrate
 
 
 class Cube(FigureElement):
@@ -47,39 +47,86 @@ class Sine(FigureElement):
         self._my_plot, = self._axes.plot(self.x, 1 + np.sin(self.x), color='white')
 
     def _update(self, p):
+        print("update")
         self._my_plot.set_data(self.x, 1 + np.sin(self.x - p))
 
 
-def cylinder_stream_function(U=1, R=1):
-    r = sympy.sqrt(x ** 2 + y ** 2)
-    theta = sympy.atan2(y, x)
-    return U * (r - R ** 2 / r) * sympy.sin(theta)
+def random_y(ylim):
+    yrange = np.diff(ylim)
+    return yrange * np.random.rand(1)[0] + ylim[0]
 
 
-def velocity_field(psi):
-    u = sympy.lambdify((x, y), psi.diff(y), 'numpy')
-    v = sympy.lambdify((x, y), -psi.diff(x), 'numpy')
-    return u, v
+def ode_scipy(f, pts, dt):
+    new_pts = [integrate.odeint(f, xy, [0, dt])[-1] for xy in pts]
+    return new_pts
+
+
+def remove_particles(pts, xlim, ylim):
+    if len(pts) == 0:
+        return []
+    outside_xlim = (pts[:, 0] < xlim[0]) | (pts[:, 0] > xlim[1])
+    outside_ylim = (pts[:, 1] < ylim[0]) | (pts[:, 1] > ylim[1])
+    keep = ~(outside_xlim|outside_ylim)
+    return pts[keep]
+
+
+def displace_func_from_velocity_funcs(u_func, v_func, method='rk4'):
+    """Return function that calculates particle positions after time step.
+
+    Parameters
+    ----------
+    u_func, v_func : functions
+        Velocity fields which return velocities at arbitrary coordinates.
+    """
+    def velocity(xy, t=0):
+        """Return (u, v) velocities for given (x, y) coordinates."""
+        # Dummy `t` variable required to work with integrators
+        # Must return a list (not a tuple) for scipy's integrate functions.
+        return [u_func(*xy), v_func(*xy)]
+
+    def displace(xy, dt):
+        return ode_scipy(velocity, xy, dt)
+
+    return displace
 
 
 class StreamFunction(FigureElement):
-    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf):
-        super(StreamFunction, self).__init__(start, duration, position, size, mf, 'rect', 'rectilinear')
+    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf):
+        super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear')
+        self.sf = sf
 
     def _init(self):
         w = 3
 
-        phi = cylinder_stream_function()
-        u, v = velocity_field(phi)
+        phi = self.sf()
+
+        u, v = self._velocity_field(phi)
 
         Y, X = np.mgrid[-w:w:100j, -w:w:100j]
+
+        self.displace = displace_func_from_velocity_funcs(u, v)
+
         self._axes.set_xlim(-w, w)
         self._axes.set_xlim(-w, w)
-        self._my_plot = self._axes.streamplot(X, Y, u(X, Y), v(X, Y), color='k',
-                                              linewidth=0.8, density=1.3, minlength=0.9,
-                                              arrowstyle='-')
-        self._axes.add_patch(Circle((0, 0), radius=1, facecolor='none', edgecolor='white', inewidth=2))
+        self._my_plot = self._axes.streamplot(X, Y, u(X, Y), v(X, Y), color='white',
+                                              linewidth=0.8, arrowstyle='-')
+        self.pts = []
+
+    @staticmethod
+    def _velocity_field(psi):
+        u = sympy.lambdify((x, y), psi.diff(y), 'numpy')
+        v = sympy.lambdify((x, y), -psi.diff(x), 'numpy')
+        return u, v
 
     def _update(self, p):
-        return 0
+        """Update locations of "particles" in flow on each frame frame."""
+        self.pts = list(self.pts)
+        self.pts.append((-3, random_y((-3, 3))))
+        self.pts = self.displace(self.pts, 0.05)
+        self.pts = np.asarray(self.pts)
+        self.pts = remove_particles(self.pts, (-3, 3), (-3, 3))
+
+        x, y = np.asarray(self.pts).transpose()
+        lines, = self._axes.plot(x, y, 'ro')
+
 

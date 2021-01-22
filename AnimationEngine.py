@@ -17,6 +17,9 @@ matplotlib.rcParams['text.antialiased'] = True
 matplotlib.rcParams['text.hinting'] = 'auto'
 matplotlib.rcParams['text.hinting_factor'] = 8
 
+# Support Latex just very slow
+# matplotlib.rc('text', usetex=True)
+
 
 def progress_bar(current, total, elem, axes):
     bar_length = 40

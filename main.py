@@ -21,5 +21,5 @@ if __name__ == '__main__':
     #                            verticalalignment='center', color='white', fontsize=72))
     ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8*9/16, .8), main_fig, cylinder_stream_function))
 
-    ae.browse()
-    #ae.render('test2', 10)
+    #ae.browse()
+    ae.render('test2', 10)

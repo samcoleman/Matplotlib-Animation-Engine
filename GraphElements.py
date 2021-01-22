@@ -60,7 +60,6 @@ def ode_scipy(f, pts, dt):
     new_pts = [integrate.odeint(f, xy, [0, dt])[-1] for xy in pts]
     return new_pts
 
-
 def remove_particles(pts, xlim, ylim):
     if len(pts) == 0:
         return []
@@ -108,9 +107,38 @@ class StreamFunction(FigureElement):
 
         self._axes.set_xlim(-w, w)
         self._axes.set_xlim(-w, w)
-        self._my_plot = self._axes.streamplot(X, Y, u(X, Y), v(X, Y), color='white',
-                                              linewidth=0.8, arrowstyle='-')
-        self.pts = []
+
+        self.pts = np.linspace((-3, -3), (-3, 3), 31)
+
+        thresh = 0.00001
+        xs, ys = [], []
+        for p in self.pts:
+            x = [p[0]]
+            y = [p[1]]
+            while True:
+                new_pt = self.displace([[x[-1], y[-1]]], 0.05)[0]
+                if (not (-3 < new_pt[0] and new_pt[0] < 3) or (not (-3 < new_pt[1] and new_pt[1] < 3))):
+                    x.append(new_pt[0])
+                    y.append(new_pt[1])
+                    break
+                elif ((new_pt[0] - x[-1]) < thresh) and ((new_pt[1] - y[-1]) < thresh):
+                    x.append(new_pt[0])
+                    y.append(new_pt[1])
+                    break
+
+                x.append(new_pt[0])
+                y.append(new_pt[1])
+
+            xs.append(x)
+            ys.append(y)
+
+        for x, y in zip(xs, ys):
+            self._axes.plot(x, y, color="white")
+
+        self._axes.add_patch(Circle((0, 0), radius=1, edgecolor="white", facecolor='w', linewidth=1))
+        self._axes.set_aspect("equal", "datalim")
+
+        self.p = []
 
     @staticmethod
     def _velocity_field(psi):
@@ -119,14 +147,15 @@ class StreamFunction(FigureElement):
         return u, v
 
     def _update(self, p):
-        """Update locations of "particles" in flow on each frame frame."""
-        self.pts = list(self.pts)
-        self.pts.append((-3, random_y((-3, 3))))
-        self.pts = self.displace(self.pts, 0.05)
-        self.pts = np.asarray(self.pts)
-        self.pts = remove_particles(self.pts, (-3, 3), (-3, 3))
+        """Update locations of "particles" in flow on each frame frame """
+        self.p = list(self.p)
+        self.p.append((-3, random_y((-3, 3))))
+        self.p = self.displace(self.p, 0.05)
+        self.p = np.asarray(self.p)
+        self.p = remove_particles(self.p, (-3, 3), (-3, 3))
 
-        x, y = np.asarray(self.pts).transpose()
+        x, y = np.asarray(self.p).transpose()
         lines, = self._axes.plot(x, y, 'ro')
+
 
 

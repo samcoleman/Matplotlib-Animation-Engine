@@ -46,8 +46,8 @@ class AnimationEngine:
         # Setup frame & camera
         self._fig = plt.figure(figsize=(16, 9))
         self._axes = plt.gca()
-        self._axes.set_xlim([-100, 100])
-        self._axes.set_ylim([-100, 100])
+        self._axes.set_xlim([0, 1])
+        self._axes.set_ylim([0, 1])
 
         self._writer = animation.writers['ffmpeg'](fps=self._fps, codec=None, bitrate=8000)
 

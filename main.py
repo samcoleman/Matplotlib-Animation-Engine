@@ -5,6 +5,8 @@ from GraphElements import *
 import sympy
 from sympy.abc import x, y
 
+from typing import List, Tuple
+from myMaths import Vec3D
 
 def cylinder_stream_function(U=1, R=1):
     r = sympy.sqrt(x ** 2 + y ** 2)
@@ -17,9 +19,16 @@ if __name__ == '__main__':
 
     main_fig, main_axes = ae.get_fig()
 
-    #ae.add_element(TextElement(0, 10, Vec2D(0, 75), main_axes, "hi", horizontalalignment='center',
-    #                            verticalalignment='center', color='white', fontsize=72))
-    ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8*9/16, .8), main_fig, cylinder_stream_function))
+    sequence = [(Translate2D(Vec2D(.75, .75)), .5),
+                ([Translate2D(Vec2D(.75, .25)),
+                  Scale(32),
+                  Rotate(45)], 1.)]
 
-    #ae.browse()
-    ae.render('test2', 10)
+    ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72, s=sequence,
+                               horizontalalignment='center', verticalalignment='center', color='white'))
+
+    #ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8*9/16, .8), main_fig, cylinder_stream_function))
+    ae.browse()
+
+
+    #ae.render('test2', 10)

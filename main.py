@@ -29,12 +29,13 @@ if __name__ == '__main__':
     sequence2 = [([Translate2D(Vec2D(.25, .25)),
                   Scale2D(Vec2D(.5/ar, .5))], 1.)]
 
-    #ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72, sequence,
-    #                           horizontalalignment='center', verticalalignment='center', color='white'))
+    text = ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72,
+                               horizontalalignment='center', verticalalignment='center', color='white'))
+    text.attach_transform_sequence(sequence)
 
-    ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),
-                                  main_fig, cylinder_stream_function, sequence2))
-
+    sf = ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),
+                                       main_fig, cylinder_stream_function))
+    sf.attach_transform_sequence(sequence2)
     ae.browse()
 
     #ae.render('test2', 10)

@@ -1,5 +1,5 @@
 from myMaths import Vec2D
-
+from Transform import Transform_Sequence
 
 # Animation Element, start time and end time
 class AnimationElement:
@@ -9,6 +9,15 @@ class AnimationElement:
         self._start = start
         self._end = start + duration
         self._position = position
+
+        self._t_sequence: Transform_Sequence = None
+        self._e_sequence: Transform_Sequence = None
+
+    def attach_transform_sequence(self, s: Transform_Sequence):
+        self._t_sequence = s
+
+    def attach_effect_sequence(self, s):
+        self._e_sequence = s
 
     def update(self, frame, fps):
         # Progress from 0-1

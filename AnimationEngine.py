@@ -62,6 +62,7 @@ class AnimationEngine:
 
     def add_element(self, elem: AnimationElement):
         self._animElements.append(elem)
+        return elem
 
     def _update_elements(self):
         for elem in self._animElements:

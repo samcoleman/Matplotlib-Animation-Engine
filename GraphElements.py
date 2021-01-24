@@ -8,7 +8,7 @@ import sympy
 from sympy.abc import x, y
 from scipy import integrate
 
-from Transform import Sequence
+from Transform import Transform_Sequence
 
 
 class Cube(FigureElement):
@@ -71,7 +71,7 @@ def remove_particles(pts, xlim, ylim):
     return pts[keep]
 
 
-def displace_func_from_velocity_funcs(u_func, v_func, method='rk4'):
+def displace_func_from_velocity_funcs(u_func, v_func):
     """Return function that calculates particle positions after time step.
 
     Parameters
@@ -92,8 +92,8 @@ def displace_func_from_velocity_funcs(u_func, v_func, method='rk4'):
 
 
 class StreamFunction(FigureElement):
-    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf, ax_s: Sequence = None):
-        super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear', ax_s)
+    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf):
+        super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear')
         self.sf = sf
 
     def _init(self):

@@ -17,6 +17,8 @@ def cylinder_stream_function(U=1, R=1):
 if __name__ == '__main__':
     ae = AnimationEngine(1080, 24)
 
+    ar = ae.get_ar()
+
     main_fig, main_axes = ae.get_fig()
 
     sequence = [(Translate2D(Vec2D(.75, .75)), .5),
@@ -24,11 +26,15 @@ if __name__ == '__main__':
                   Scale(32),
                   Rotate(45)], 1.)]
 
-    ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72, s=sequence,
-                               horizontalalignment='center', verticalalignment='center', color='white'))
+    sequence2 = [([Translate2D(Vec2D(.25, .25)),
+                  Scale2D(Vec2D(.5/ar, .5))], 1.)]
 
-    #ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8*9/16, .8), main_fig, cylinder_stream_function))
+    #ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72, sequence,
+    #                           horizontalalignment='center', verticalalignment='center', color='white'))
+
+    ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),
+                                  main_fig, cylinder_stream_function, sequence2))
+
     ae.browse()
-
 
     #ae.render('test2', 10)

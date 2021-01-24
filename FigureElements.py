@@ -1,15 +1,17 @@
 from AnimationElement import AnimationElement
 from myMaths import Vec2D
+from Transform import *
 
 
 class FigureElement(AnimationElement):
     def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D,
-                 main_fig, label, projection):
+                 main_fig, label, projection, ax_s: Sequence = None):
         super().__init__(start, duration, position)
         self._size = size
         self._main_fig = main_fig
         self.label = label
         self.projection = projection
+        self._ax_s = ax_s
 
     def _inset(self):
         self._axes = self._main_fig.add_axes([self._position.x, self._position.y, self._size.x, self._size.y],
@@ -29,6 +31,7 @@ class FigureElement(AnimationElement):
     def _instantiate(self):
         self._inset()
         self._style()
+        self._axesTransform = AxesTransform(self._ax_s, self._axes, self._position, 0, self._size)
         try:
             return self._init()
         except Exception as detail:
@@ -39,7 +42,15 @@ class FigureElement(AnimationElement):
         raise Exception("Figure Init Not Implemented")
 
     def _update(self, p):
+        self._axesTransform.update(p)
+        try:
+            return self._refresh(p)
+        except Exception as detail:
+            print("Error:", detail)
         return 0
+
+    def _refresh(self, p):
+        raise Exception("Figure Refresh Not Implemented")
 
     def _cleanup(self):
         self._axes.remove()

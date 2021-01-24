@@ -54,6 +54,9 @@ class AnimationEngine:
         self._axes.set_position([0, 0, 1, 1])
         self._axes.set_facecolor('#008cff')
 
+    def get_ar(self):
+        return self._aspectRatio
+
     def get_fig(self):
         return self._fig, self._axes
 

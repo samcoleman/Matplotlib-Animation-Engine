@@ -8,6 +8,8 @@ import sympy
 from sympy.abc import x, y
 from scipy import integrate
 
+from Transform import Sequence
+
 
 class Cube(FigureElement):
     def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf):
@@ -26,7 +28,7 @@ class Cube(FigureElement):
         self._my_plot = self._axes.plot_wireframe(self.x, self.y, self.z)
         self._axes.set_axis_off()
 
-    def _update(self, p):
+    def _refresh(self, p):
         self._axes.view_init(elev=30., azim=p * 360)
         self._axes.set_anchor((0.5 + p / 2, 0.5))
         self._axes.set_xlim(-2 + p, 2 - p)
@@ -46,7 +48,7 @@ class Sine(FigureElement):
     def _init(self):
         self._my_plot, = self._axes.plot(self.x, 1 + np.sin(self.x), color='white')
 
-    def _update(self, p):
+    def _refresh(self, p):
         print("update")
         self._my_plot.set_data(self.x, 1 + np.sin(self.x - p))
 
@@ -90,8 +92,8 @@ def displace_func_from_velocity_funcs(u_func, v_func, method='rk4'):
 
 
 class StreamFunction(FigureElement):
-    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf):
-        super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear')
+    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf, ax_s: Sequence = None):
+        super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear', ax_s)
         self.sf = sf
 
     def _init(self):
@@ -146,7 +148,7 @@ class StreamFunction(FigureElement):
         v = sympy.lambdify((x, y), -psi.diff(x), 'numpy')
         return u, v
 
-    def _update(self, p):
+    def _refresh(self, p):
         """Update locations of "particles" in flow on each frame frame """
         self.p = list(self.p)
         self.p.append((-3, random_y((-3, 3))))

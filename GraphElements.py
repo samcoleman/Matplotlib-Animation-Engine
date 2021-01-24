@@ -149,7 +149,7 @@ class StreamFunction(FigureElement):
         return u, v
 
     def _refresh(self, p):
-        """Update locations of "particles" in flow on each frame frame """
+        """Update locations of "particles" in flow on each frame frame
         self.p = list(self.p)
         self.p.append((-3, random_y((-3, 3))))
         self.p = self.displace(self.p, 0.05)
@@ -158,6 +158,7 @@ class StreamFunction(FigureElement):
 
         x, y = np.asarray(self.p).transpose()
         lines, = self._axes.plot(x, y, 'ro')
+        """
 
 
 

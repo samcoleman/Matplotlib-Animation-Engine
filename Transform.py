@@ -6,15 +6,17 @@ from Interpolate import Interpolate
 
 
 class Transform(Interpolate):
-    def __init__(self, end: Vec2D, absolute=True, fn=lambda y: y):
+    def __init__(self, end: Union[float, Vec2D, Vec3D], absolute=True, fn=lambda y: y):
         super(Transform, self).__init__(end, fn)
         self._abs = absolute
+        self._rel_end = end
 
     def set_start(self, start: Union[float, Vec2D, Vec3D]):
-        self._start = start
+        if self._start is not start:
+            self._start = start
 
         if not self._abs:
-            self._end = self._start + self._end
+            self._end = self._start + self._rel_end
 
 
 Transform_Keyframe = Tuple[Union[List[Transform], Transform], float]
@@ -27,12 +29,12 @@ class Translate2D(Transform):
 
 
 class Rotate(Transform):
-    def __init__(self, end: Vec2D, absolute=True, fn=lambda y: y):
+    def __init__(self, end: float, absolute=True, fn=lambda y: y):
         super(Rotate, self).__init__(end, absolute, fn)
 
 
 class Scale(Transform):
-    def __init__(self, end: Vec2D, absolute=True, fn=lambda y: y):
+    def __init__(self, end: float, absolute=True, fn=lambda y: y):
         super(Scale, self).__init__(end, absolute, fn)
 
 
@@ -78,7 +80,7 @@ class TextTransform:
                     self._text.set_position((last_key_pos.x, last_key_pos.y))
                 if type(transform) is Rotate:
                     last_key_rot = trn(transform, last_key_rot, last_key_time, p, keyframe[1])
-                    self._text.set_rotation(last_key_rot)
+                    self._text.set_rotation(-last_key_rot)
                 if type(transform) is Scale:
                     last_key_size = trn(transform, last_key_size, last_key_time, p, keyframe[1])
                     self._text.set_size(last_key_size)

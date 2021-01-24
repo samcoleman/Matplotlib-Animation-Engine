@@ -21,16 +21,17 @@ if __name__ == '__main__':
 
     main_fig, main_axes = ae.get_fig()
 
-    sequence = [(Translate2D(Vec2D(.75, .75)), .5),
+    sequence = [([Translate2D(Vec2D(.25, .75)),
+                  Rotate(45)], .5),
                 ([Translate2D(Vec2D(.75, .25)),
                   Scale(32),
-                  Rotate(45)], 1.)]
+                  Rotate(45, False)], 1.)]
 
     sequence2 = [([Translate2D(Vec2D(.25, .25)),
                   Scale2D(Vec2D(.5/ar, .5))], 1.)]
 
     text = ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72,
-                               horizontalalignment='center', verticalalignment='center', color='white'))
+                                      horizontalalignment='center', verticalalignment='center', color='white'))
     text.attach_transform_sequence(sequence)
 
     sf = ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),

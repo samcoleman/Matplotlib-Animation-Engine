@@ -1,5 +1,7 @@
 from myMaths import Vec2D
-from Transform import Transform_Sequence
+from KeyFrame import KeyFrameManager, KeyFrame
+from typing import List
+
 
 # Animation Element, start time and end time
 class AnimationElement:
@@ -10,14 +12,10 @@ class AnimationElement:
         self._end = start + duration
         self._position = position
 
-        self._t_sequence: Transform_Sequence = None
-        self._e_sequence: Transform_Sequence = None
+        self._keyframeMng = KeyFrameManager()
 
-    def attach_transform_sequence(self, s: Transform_Sequence):
-        self._t_sequence = s
-
-    def attach_effect_sequence(self, s):
-        self._e_sequence = s
+    def attach_keyframes(self, k: List[KeyFrame]):
+        self._keyframeMng.attach_keyframes(k)
 
     def update(self, frame, fps):
         # Progress from 0-1
@@ -29,7 +27,9 @@ class AnimationElement:
             # If active and not instantiated, instantiate!
             if not self._instantiated:
                 self._instantiated = True
-                return self._instantiate()
+                self._instantiate()
+                self._update(0)
+                return
             # Update element with progress state
             try:
                 return self._update(progress)

@@ -20,10 +20,10 @@ class TextElement(AnimationElement):
         self._textElem = self._axes.text(self._position.x, self._position.y, self._text,
                                          self._textArgs, fontsize=self._size)
 
-        self._textTransform = TextTransform(self._t_sequence, self._textElem, self._position, 0, self._size)
+        self._keyframeMng.attach_handle(self._textElem)
 
     def _update(self, p):
-        self._position, self._rotation, self._size = self._textTransform.update(p)
+        self._keyframeMng.update(p)
 
     def _cleanup(self):
         self._textElem.set_visible(False)

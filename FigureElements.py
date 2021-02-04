@@ -30,7 +30,7 @@ class FigureElement(AnimationElement):
     def _instantiate(self):
         self._inset()
         self._style()
-        self._axesTransform = AxesTransform(self._t_sequence, self._axes, self._position, 0, self._size)
+        self._keyframeMng.attach_handle(self._axes)
         try:
             return self._init()
         except Exception as detail:
@@ -41,7 +41,7 @@ class FigureElement(AnimationElement):
         raise Exception("Figure Init Not Implemented")
 
     def _update(self, p):
-        self._axesTransform.update(p)
+        self._keyframeMng.update(p)
         try:
             return self._refresh(p)
         except Exception as detail:

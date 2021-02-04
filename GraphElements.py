@@ -8,7 +8,6 @@ import sympy
 from sympy.abc import x, y
 from scipy import integrate
 
-from Transform import Transform_Sequence
 
 
 class Cube(FigureElement):

@@ -5,6 +5,10 @@ from GraphElements import *
 import sympy
 from sympy.abc import x, y
 
+from KeyFrame import KeyFrame
+
+from Transform import TranslateX
+
 from typing import List, Tuple
 from myMaths import Vec3D
 
@@ -21,22 +25,27 @@ if __name__ == '__main__':
 
     main_fig, main_axes = ae.get_fig()
 
+    """
     sequence = [([Translate2D(Vec2D(.25, .75)),
                   Rotate(45)], .5),
                 ([Translate2D(Vec2D(.75, .25)),
-                  Scale(32),
+                  Scale(2, False),
                   Rotate(45, False)], 1.)]
 
-    sequence2 = [([Translate2D(Vec2D(.25, .25)),
-                  Scale2D(Vec2D(.5/ar, .5))], 1.)]
-
+    sequence2 = [([Translate2D(Vec2D(.25, 0), False),
+                   Scale2D(Vec2D(2, 0))], 1.)]
+    """
     text = ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72,
                                       horizontalalignment='center', verticalalignment='center', color='white'))
-    text.attach_transform_sequence(sequence)
+    text.attach_keyframes([KeyFrame([TranslateX(.75)], .5),
+                           KeyFrame([TranslateX(.5)], 1.)])
 
     sf = ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),
                                        main_fig, cylinder_stream_function))
-    sf.attach_transform_sequence(sequence2)
+
+    sf.attach_keyframes([KeyFrame([TranslateX(.75)], .5),
+                         KeyFrame([TranslateX(.5)], 1.)])
+
     ae.browse()
 
     #ae.render('test2', 10)

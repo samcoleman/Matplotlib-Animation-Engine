@@ -1,10 +1,40 @@
-
+from matplotlib.pyplot import Axes, Text
 from myMaths import Vec2D, Vec3D
 from typing import List, Tuple, Union
 
 from Interpolate import Interpolate
 
+from KeyFrame import KeyFrameObject
 
+
+class TranslateX(KeyFrameObject):
+    def __init__(self, end: float):
+        super(TranslateX, self).__init__()
+        self._start = None
+        self._end = end
+
+    def set_start_text(self):
+        start_pos = self._handle.get_position()
+        self._start = start_pos[0]
+
+    def set_start_axes(self):
+        self._start = self._handle.get_position().x0
+
+    def update_text(self, adj_progress: float):
+        new_pos_x = self.interp(adj_progress)
+        current_pos = self._handle.get_position()
+        self._handle.set_position((new_pos_x, current_pos[1]))
+
+    def update_axes(self, adj_progress: float):
+        new_pos_x = self.interp(adj_progress)
+        # Returns Bbox [[x0, y0], [x1, y1]]
+        current_state = self._handle.get_position()
+        width = current_state.x1 - current_state.x0
+        current_state.x0 = new_pos_x
+        current_state.x1 = new_pos_x + width
+        self._handle.set_position(current_state)
+
+"""
 class Transform(Interpolate):
     def __init__(self, end: Union[float, Vec2D, Vec3D], absolute=True, fn=lambda y: y):
         super(Transform, self).__init__(end, fn)
@@ -17,6 +47,7 @@ class Transform(Interpolate):
 
         if not self._abs:
             self._end = self._start + self._rel_end
+
 
 
 Transform_Keyframe = Tuple[Union[List[Transform], Transform], float]
@@ -37,10 +68,31 @@ class Scale(Transform):
     def __init__(self, end: float, absolute=True, fn=lambda y: y):
         super(Scale, self).__init__(end, absolute, fn)
 
+    def set_start(self, start: float):
+        if self._start is not start:
+            self._start = start
+
+        if not self._abs:
+            self._end = self._start * self._rel_end
+
 
 class Scale2D(Transform):
     def __init__(self, end: Vec2D, absolute=True, fn=lambda y: y):
         super(Scale2D, self).__init__(end, absolute, fn)
+        print("init")
+        self._rel_end = end
+
+    def set_start(self, start: Vec2D):
+        if self._start is not start:
+            self._start = start
+
+        # somethings is setting rel_end fuck knows what
+        if not self._abs:
+            self._end.x = self._start.x * float(self._rel_end.x)
+
+        print(self._start)
+        print(self._end)
+        print(self._rel_end)
 
 
 class TextTransform:
@@ -126,7 +178,7 @@ class AxesTransform:
                 if type(transform) is Translate2D:
                     last_key_pos = trn(transform, last_key_pos, last_key_time, p, keyframe[1])
                     self._axes.set_position((last_key_pos.x, last_key_pos.y, last_key_size.x, last_key_size.y))
-                # Add rotation feature
+                # Add rotation feature?
 
                 # if type(transform) is Rotate:
                     # last_key_rot = trn(transform, last_key_rot, last_key_time, p, keyframe[1])
@@ -146,6 +198,6 @@ class AxesTransform:
         # Return new state
         return last_key_pos, last_key_rot, last_key_size
 
-
+"""
 
 

@@ -6,7 +6,6 @@ import sympy
 from sympy.abc import x, y
 
 from KeyFrame import KeyFrame
-
 from Transform import TranslateX
 
 from typing import List, Tuple
@@ -37,14 +36,14 @@ if __name__ == '__main__':
     """
     text = ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72,
                                       horizontalalignment='center', verticalalignment='center', color='white'))
-    text.attach_keyframes([KeyFrame([TranslateX(.75)], .5),
-                           KeyFrame([TranslateX(.5)], 1.)])
+    text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.75, .25))], .5),
+                           KeyFrame([TranslateX(.5), Scale(2)], 1.)])
 
     sf = ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),
                                        main_fig, cylinder_stream_function))
 
-    sf.attach_keyframes([KeyFrame([TranslateX(.75)], .5),
-                         KeyFrame([TranslateX(.5)], 1.)])
+    sf.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .25))], .5),
+                         KeyFrame([TranslateX(.5), Scale2D(Vec2D(.5, 2))], 1.)])
 
     ae.browse()
 

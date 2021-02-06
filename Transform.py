@@ -1,17 +1,24 @@
-from matplotlib.pyplot import Axes, Text
 from myMaths import Vec2D, Vec3D
-from typing import List, Tuple, Union
-
-from Interpolate import Interpolate
-
 from KeyFrame import KeyFrameObject
+from typing import Union
 
 
-class TranslateX(KeyFrameObject):
-    def __init__(self, end: float):
-        super(TranslateX, self).__init__()
-        self._start = None
+class Transform(KeyFrameObject):
+    def __init__(self, end: Union[float, Vec2D, Vec3D], absolute: bool = True):
+        super(Transform, self).__init__()
         self._end = end
+        self._abs = absolute
+        self._rel_end = None
+
+    def post_start(self):
+        if self._abs is False and self._rel_end is None:
+            self._rel_end = self._end
+            self._end = self._start + self._rel_end
+
+
+class TranslateX(Transform):
+    def __init__(self, end: float, absolute: bool = True):
+        super(TranslateX, self).__init__(end, absolute)
 
     def set_start_text(self):
         start_pos = self._handle.get_position()
@@ -32,6 +39,126 @@ class TranslateX(KeyFrameObject):
         width = current_state.x1 - current_state.x0
         current_state.x0 = new_pos_x
         current_state.x1 = new_pos_x + width
+        self._handle.set_position(current_state)
+
+
+class TranslateY(Transform):
+    def __init__(self, end: float, absolute: bool = True):
+        super(TranslateY, self).__init__(end, absolute)
+
+    def set_start_text(self):
+        start_pos = self._handle.get_position()
+        self._start = start_pos[1]
+
+    def set_start_axes(self):
+        self._start = self._handle.get_position().y0
+
+    def update_text(self, adj_progress: float):
+        new_pos_y = self.interp(adj_progress)
+        current_pos = self._handle.get_position()
+        self._handle.set_position((current_pos[0], new_pos_y))
+
+    def update_axes(self, adj_progress: float):
+        new_pos_y = self.interp(adj_progress)
+        # Returns Bbox [[x0, y0], [x1, y1]]
+        current_state = self._handle.get_position()
+        height = current_state.y1 - current_state.y0
+        current_state.y0 = new_pos_y
+        current_state.y1 = new_pos_y + height
+        self._handle.set_position(current_state)
+
+
+class Translate2D(Transform):
+    def __init__(self, end: Vec2D, absolute: bool = True):
+        super(Translate2D, self).__init__(end, absolute)
+
+    def set_start_text(self):
+        self._start = Vec2D(self._handle.get_position())
+
+    def set_start_axes(self):
+        self._start = Vec2D(self._handle.get_position().x0, self._handle.get_position().y0)
+
+    def update_text(self, adj_progress: float):
+        new_pos = self.interp(adj_progress)
+        self._handle.set_position(new_pos)
+
+    def update_axes(self, adj_progress: float):
+        new_pos = self.interp(adj_progress)
+        # Returns Bbox [[x0, y0], [x1, y1]]
+        current_state = self._handle.get_position()
+        width = current_state.x1 - current_state.x0
+        height = current_state.y1 - current_state.y0
+        self._handle.set_position((new_pos.x, new_pos.y, width, height))
+
+
+class Rotate(Transform):
+    def __init__(self, end: float, origin: Vec2D = Vec2D(0, 0), absolute: bool = True):
+        # Minus is to make positive rotations clockwise
+        super(Rotate, self).__init__(-end, absolute)
+        self._origin = origin
+
+    def set_start_text(self):
+        self._start = self._handle.get_rotation()
+
+    def update_text(self, adj_progress: float):
+        new_rot = self.interp(adj_progress)
+        self._handle.set_rotation(new_rot)
+
+
+class Scale(Transform):
+    def __init__(self, end: float, origin: Vec2D = Vec2D(0, 0), absolute: bool = False):
+        super(Scale, self).__init__(end, absolute)
+        self._origin = origin
+
+    def post_start(self):
+        if self._abs is False and self._rel_end is None:
+            self._rel_end = self._end
+            self._end = self._start * self._rel_end
+
+    def set_start_text(self):
+        self._start = self._handle.get_fontsize()
+
+    def set_start_axes(self):
+        current_state = self._handle.get_position()
+        width = current_state.x1 - current_state.x0
+        height = current_state.y1 - current_state.y0
+        self._start = Vec2D(width, height)
+
+    def update_text(self, adj_progress: float):
+        new_size = self.interp(adj_progress)
+        self._handle.set_fontsize(new_size)
+
+    def update_axes(self, adj_progress: float):
+        new_size = self.interp(adj_progress)
+        current_state = self._handle.get_position()
+        current_state.x1 = current_state.x0 + new_size.x
+        current_state.y1 = current_state.y0 + new_size.y
+        self._handle.set_position(current_state)
+
+
+class Scale2D(Transform):
+    def __init__(self, end: Vec2D, origin: Vec2D = Vec2D(0, 0), absolute: bool = False):
+        super(Scale2D, self).__init__(end, absolute)
+        self._origin = origin
+
+    def post_start(self):
+        if self._abs is False and self._rel_end is None:
+            self._rel_end = self._end
+            # Equivalent to dot production, not sure why can't just multiply?
+            self._end.x = self._start.x * self._rel_end.x
+            self._end.y = self._start.y * self._rel_end.y
+
+    def set_start_axes(self):
+        current_state = self._handle.get_position()
+        width = current_state.x1 - current_state.x0
+        height = current_state.y1 - current_state.y0
+        self._start = Vec2D(width, height)
+
+    def update_axes(self, adj_progress: float):
+        new_size = self.interp(adj_progress)
+        current_state = self._handle.get_position()
+        current_state.x1 = current_state.x0 + new_size.x
+        current_state.y1 = current_state.y0 + new_size.y
         self._handle.set_position(current_state)
 
 """

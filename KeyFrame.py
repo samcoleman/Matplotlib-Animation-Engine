@@ -1,8 +1,10 @@
 from typing import List, Union
 from matplotlib.pyplot import Axes, Text
 
+
 def clamp(n, minn, maxn):
     return max(min(maxn, n), minn)
+
 
 class KeyFrameObject:
     def __init__(self):
@@ -22,11 +24,16 @@ class KeyFrameObject:
             self.set_start_text()
         elif isinstance(self._handle, Axes):
             self.set_start_axes()
+        self.post_start()
 
     def set_start_text(self):
         return 0
 
     def set_start_axes(self):
+        return 0
+
+    # This function is called after start handle is called
+    def post_start(self):
         return 0
 
     # Call relevant update function function depending on handle type
@@ -35,11 +42,16 @@ class KeyFrameObject:
             self.update_text(adj_progress)
         elif isinstance(self._handle, Axes):
             self.update_axes(adj_progress)
+        self.post_update(adj_progress)
 
     def update_text(self, adj_progress: float):
         return 0
 
     def update_axes(self, adj_progress: float):
+        return 0
+
+    # This function is called after update handle is called
+    def post_update(self, adj_progress: float):
         return 0
 
 

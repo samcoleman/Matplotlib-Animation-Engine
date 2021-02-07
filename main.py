@@ -44,6 +44,6 @@ if __name__ == '__main__':
     sf = ae.add_element(StreamFunction(0, 10, Vec2D(.25, .25), Vec2D(.5, .5),
                                        main_fig, cylinder_stream_function))
 
-    ae.browse()
+    #ae.browse()
 
-    #ae.render('test2', 10)
+    ae.render('test2', 3)

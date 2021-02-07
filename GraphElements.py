@@ -3,7 +3,9 @@ import numpy as np
 import numpy.ma as ma
 from myMaths import Vec2D
 
-from matplotlib.patches import Circle
+from matplotlib.axes import Axes
+from matplotlib.collections import LineCollection
+
 
 import sympy
 from sympy import I
@@ -80,15 +82,17 @@ def circle(C, a):
     return C + a*np.exp(1j*t)
 
 
-def complex_potential(gamma, U=1, a=1, alpha=np.pi/8):
-
-    # Stagnation flow
-    #F = 0.5 * (z**2)
-    F = U*z*sympy.exp(-1j*alpha) + U*(a**2)*sympy.exp(1j*alpha)/z - 1j*gamma*sympy.ln(z)/(2*np.pi)
-
+# Must be F(z)
+# Returns sf (stream-function), u (x velocity function), v (y velocity function)
+def lambda_complex_potential(F):
     sf = sympy.lambdify(z, sympy.im(F), 'numpy')
 
-    return sf
+    dF_dz = sympy.diff(F, z)
+    # Negative as dF/dz = u - iv
+    u = sympy.lambdify(z, sympy.re(dF_dz), 'numpy')
+    v = sympy.lambdify(z, -sympy.im(dF_dz), 'numpy')
+
+    return sf, u, v
 
 
 def displace_func_from_velocity_funcs(u_func, v_func):
@@ -110,6 +114,7 @@ def displace_func_from_velocity_funcs(u_func, v_func):
 
     return displace
 
+
 class StreamFunction(FigureElement):
     def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf):
         super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear')
@@ -118,18 +123,11 @@ class StreamFunction(FigureElement):
     def _init(self):
         w = 3
 
-        #phi = self.sf()
-
-        #u, v = self._velocity_field(phi)
-        #u, v = complex_potential()
-
-        #Y, X = np.mgrid[-w:w:100j, -w:w:100j]
-
         U = 1
         a = 1
         c = .1
-        alpha = 2*np.pi/16
-        beta = .1
+        alpha = 0#2*np.pi/16
+        beta = 0#.1
 
         lam = a / (a + c)
         c_centre = lam - a * np.exp(-1j * beta)
@@ -147,26 +145,59 @@ class StreamFunction(FigureElement):
         Aerofoil = Juc(C, lam)
 
         gamma = -4*np.pi*U*a*np.sin(beta+alpha)#circulation
+        # Stagnation flow
+        # F = 0.5 * (z**2)
+        F = U * z * sympy.exp(-1j * alpha) + \
+            U * (a ** 2) * sympy.exp(1j * alpha) / z - \
+            1j * gamma * sympy.ln(z) / (2 * np.pi)
 
-        SF = complex_potential(gamma, U, a, alpha)
+        SF, u, v = lambda_complex_potential(F)
 
-        levels = np.arange(-2.8, 4.8, 0.2).tolist()
+        levels = np.arange(-2.8, 4.8, 0.05).tolist()
 
         #self._axes.plot(C.real, C.imag, color='white')
         #cp = self._axes.contour(Z.real, Z.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
         #                        linestyles='solid')  # this means that the flow is evaluated at Juc(z) since c_flow(Z)=C_flow(csi(Z))
 
-        self._axes.plot(Aerofoil.real, Aerofoil.imag, color='white')
         cp = self._axes.contour(J.real, J.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
                 linestyles='solid')# this means that the flow is evaluated at Juc(z) since c_flow(Z)=C_flow(csi(Z))
+        self._axes.clear()
 
-
-
-
-
+        self._style()
         self._axes.set_xlim(-w, w)
         self._axes.set_xlim(-w, w)
+        self._axes.plot(Aerofoil.real, Aerofoil.imag, color='white')
 
+        self.lengths = []
+        self.colors = []
+        self.lines = []
+        for line in cp.collections:
+            paths = line.get_paths()
+            if len(paths) == 0:
+                continue
+
+            for path in paths:
+                x = path.vertices[:, 0]
+                y = path.vertices[:, 1]
+                points = np.array([x, y]).T.reshape(-1, 1, 2)
+                segments = np.concatenate([points[:-1], points[1:]], axis=1)
+                n = len(segments)
+
+                D = np.sqrt(((points[1:] - points[:-1]) ** 2).sum(axis=-1))
+                L = D.cumsum().reshape(n, 1)# + np.random.uniform(0, 1)
+                C = np.ones((n, 4))
+                C[:, [3]] = (L * 1.5) % 1
+
+                # linewidths = np.zeros(n)
+                # linewidths[:] = 1.5 - ((L.reshape(n)*1.5) % 1)
+
+                # line = LineCollection(segments, color=colors, linewidth=linewidths)
+                line = LineCollection(segments, color=C, linewidth=0.5)
+                self.lengths.append(L)
+                self.colors.append(C)
+                self.lines.append(line)
+
+                self._axes.add_collection(line)
 
         #self._my_plot = self._axes.streamplot(Zm.real, Zm.imag, u(Zm.real, Zm.imag), v(Zm.real, Zm.imag), color='white')
         """
@@ -210,6 +241,11 @@ class StreamFunction(FigureElement):
         return u, v
     """
     def _refresh(self, p):
+
+        for i in range(len(self.lines)):
+            self.lengths[i] -= 0.05
+            self.colors[i][:, [3]] = (self.lengths[i] * 1.5) % 1
+            self.lines[i].set_color(self.colors[i])
         """Update locations of "particles" in flow on each frame frame
         self.p = list(self.p)
         self.p.append((-3, random_y((-3, 3))))

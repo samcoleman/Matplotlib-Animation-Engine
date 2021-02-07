@@ -3,13 +3,14 @@ from BasicElements import *
 from GraphElements import *
 
 import sympy
-from sympy.abc import x, y
+from sympy.abc import x, y, z
 
 from KeyFrame import KeyFrame
 from Transform import TranslateX
 
 from typing import List, Tuple
 from myMaths import Vec3D
+
 
 def cylinder_stream_function(U=1, R=1):
     r = sympy.sqrt(x ** 2 + y ** 2)
@@ -34,16 +35,14 @@ if __name__ == '__main__':
     sequence2 = [([Translate2D(Vec2D(.25, 0), False),
                    Scale2D(Vec2D(2, 0))], 1.)]
     """
-    text = ae.add_element(TextElement(0, 10, Vec2D(.5, .75), main_axes, "Hello", 72,
+
+    text = ae.add_element(TextElement(0, 10, Vec2D(.5, .8), main_axes, "Hello", 72,
                                       horizontalalignment='center', verticalalignment='center', color='white'))
-    text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.75, .25))], .5),
-                           KeyFrame([TranslateX(.5), Scale(2)], 1.)])
+    #text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .5))], .5),
+    #                       KeyFrame([TranslateX(0), Scale(2)], 1.)])
 
-    sf = ae.add_element(StreamFunction(0, 10, Vec2D(.1, .1), Vec2D(.8/ar, .8),
+    sf = ae.add_element(StreamFunction(0, 10, Vec2D(.25, .25), Vec2D(.5, .5),
                                        main_fig, cylinder_stream_function))
-
-    sf.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .25))], .5),
-                         KeyFrame([TranslateX(.5), Scale2D(Vec2D(.5, 2))], 1.)])
 
     ae.browse()
 

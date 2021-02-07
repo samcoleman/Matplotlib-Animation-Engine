@@ -1,11 +1,14 @@
 from FigureElements import FigureElement
 import numpy as np
+import numpy.ma as ma
 from myMaths import Vec2D
 
 from matplotlib.patches import Circle
 
 import sympy
-from sympy.abc import x, y
+from sympy import I
+import scipy.ndimage
+from sympy.abc import x, y, z
 from scipy import integrate
 
 
@@ -69,6 +72,24 @@ def remove_particles(pts, xlim, ylim):
     keep = ~(outside_xlim|outside_ylim)
     return pts[keep]
 
+def Juc(_z, lam):#Joukowski transformation
+    return _z+(lam**2)/_z
+
+def circle(C, a):
+    t=np.linspace(0, 2*np.pi, 200)
+    return C + a*np.exp(1j*t)
+
+
+def complex_potential(gamma, U=1, a=1, alpha=np.pi/8):
+
+    # Stagnation flow
+    #F = 0.5 * (z**2)
+    F = U*z*sympy.exp(-1j*alpha) + U*(a**2)*sympy.exp(1j*alpha)/z - 1j*gamma*sympy.ln(z)/(2*np.pi)
+
+    sf = sympy.lambdify(z, sympy.im(F), 'numpy')
+
+    return sf
+
 
 def displace_func_from_velocity_funcs(u_func, v_func):
     """Return function that calculates particle positions after time step.
@@ -89,7 +110,6 @@ def displace_func_from_velocity_funcs(u_func, v_func):
 
     return displace
 
-
 class StreamFunction(FigureElement):
     def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf, sf):
         super(StreamFunction, self).__init__(start, duration, position, size, mf, 'sf', 'rectilinear')
@@ -98,19 +118,58 @@ class StreamFunction(FigureElement):
     def _init(self):
         w = 3
 
-        phi = self.sf()
+        #phi = self.sf()
 
-        u, v = self._velocity_field(phi)
+        #u, v = self._velocity_field(phi)
+        #u, v = complex_potential()
 
-        Y, X = np.mgrid[-w:w:100j, -w:w:100j]
+        #Y, X = np.mgrid[-w:w:100j, -w:w:100j]
 
-        self.displace = displace_func_from_velocity_funcs(u, v)
+        U = 1
+        a = 1
+        c = .1
+        alpha = 2*np.pi/16
+        beta = .1
+
+        lam = a / (a + c)
+        c_centre = lam - a * np.exp(-1j * beta)
+
+        X = np.arange(-3, 3, 0.025)
+        Y = np.arange(-3, 3, 0.025)
+        X, Y = np.meshgrid(X, Y)
+        Z = X + 1j * Y
+        Z = ma.masked_where(np.absolute(Z-c_centre) <= a, Z)
+        Zc = Z - c_centre
+
+        J = Juc(Z, lam)
+
+        C = circle(c_centre, a)
+        Aerofoil = Juc(C, lam)
+
+        gamma = -4*np.pi*U*a*np.sin(beta+alpha)#circulation
+
+        SF = complex_potential(gamma, U, a, alpha)
+
+        levels = np.arange(-2.8, 4.8, 0.2).tolist()
+
+        #self._axes.plot(C.real, C.imag, color='white')
+        #cp = self._axes.contour(Z.real, Z.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
+        #                        linestyles='solid')  # this means that the flow is evaluated at Juc(z) since c_flow(Z)=C_flow(csi(Z))
+
+        self._axes.plot(Aerofoil.real, Aerofoil.imag, color='white')
+        cp = self._axes.contour(J.real, J.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
+                linestyles='solid')# this means that the flow is evaluated at Juc(z) since c_flow(Z)=C_flow(csi(Z))
+
+
+
+
 
         self._axes.set_xlim(-w, w)
         self._axes.set_xlim(-w, w)
 
-        self.pts = np.linspace((-3, -3), (-3, 3), 31)
 
+        #self._my_plot = self._axes.streamplot(Zm.real, Zm.imag, u(Zm.real, Zm.imag), v(Zm.real, Zm.imag), color='white')
+        """
         thresh = 0.00001
         xs, ys = [], []
         for p in self.pts:
@@ -118,6 +177,7 @@ class StreamFunction(FigureElement):
             y = [p[1]]
             while True:
                 new_pt = self.displace([[x[-1], y[-1]]], 0.05)[0]
+
                 if (not (-3 < new_pt[0] and new_pt[0] < 3) or (not (-3 < new_pt[1] and new_pt[1] < 3))):
                     x.append(new_pt[0])
                     y.append(new_pt[1])
@@ -137,16 +197,18 @@ class StreamFunction(FigureElement):
             self._axes.plot(x, y, color="white")
 
         self._axes.add_patch(Circle((0, 0), radius=1, edgecolor="white", facecolor='w', linewidth=1))
+        
+        """
         self._axes.set_aspect("equal", "datalim")
 
         self.p = []
-
+    """
     @staticmethod
     def _velocity_field(psi):
         u = sympy.lambdify((x, y), psi.diff(y), 'numpy')
         v = sympy.lambdify((x, y), -psi.diff(x), 'numpy')
         return u, v
-
+    """
     def _refresh(self, p):
         """Update locations of "particles" in flow on each frame frame
         self.p = list(self.p)

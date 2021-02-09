@@ -4,6 +4,7 @@ import numpy.ma as ma
 from myMaths import Vec2D
 
 from matplotlib.axes import Axes
+from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 
 
@@ -88,9 +89,11 @@ def lambda_complex_potential(F):
     sf = sympy.lambdify(z, sympy.im(F), 'numpy')
 
     dF_dz = sympy.diff(F, z)
+    # Needs to be in terms of x and y as odeint cannot use complex values
+    dF_dz = dF_dz.subs(z, x + y*1j)
     # Negative as dF/dz = u - iv
-    u = sympy.lambdify(z, sympy.re(dF_dz), 'numpy')
-    v = sympy.lambdify(z, -sympy.im(dF_dz), 'numpy')
+    u = sympy.lambdify((x, y), sympy.re(dF_dz), 'numpy')
+    v = sympy.lambdify((x, y), -sympy.im(dF_dz), 'numpy')
 
     return sf, u, v
 
@@ -121,6 +124,9 @@ class StreamFunction(FigureElement):
         self.sf = sf
 
     def _init(self):
+
+
+
         w = 3
 
         U = 1
@@ -132,8 +138,8 @@ class StreamFunction(FigureElement):
         lam = a / (a + c)
         c_centre = lam - a * np.exp(-1j * beta)
 
-        X = np.arange(-3, 3, 0.025)
-        Y = np.arange(-3, 3, 0.025)
+        X = np.arange(-3.2, 3.2, 0.025)
+        Y = np.arange(-3.2, 3.2, 0.025)
         X, Y = np.meshgrid(X, Y)
         Z = X + 1j * Y
         Z = ma.masked_where(np.absolute(Z-c_centre) <= a, Z)
@@ -153,20 +159,26 @@ class StreamFunction(FigureElement):
 
         SF, u, v = lambda_complex_potential(F)
 
-        levels = np.arange(-2.8, 4.8, 0.05).tolist()
+        self.displace = displace_func_from_velocity_funcs(u, v)
+
+        levels = np.arange(-2.8, 4.8, 0.2).tolist()
 
         #self._axes.plot(C.real, C.imag, color='white')
         #cp = self._axes.contour(Z.real, Z.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
         #                        linestyles='solid')  # this means that the flow is evaluated at Juc(z) since c_flow(Z)=C_flow(csi(Z))
 
-        cp = self._axes.contour(J.real, J.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
+        tmp = self._main_fig.add_axes([0, 0, 1, 1],
+                                             label="tmp", anchor='C', projection=self.projection)
+        cp = tmp.contour(J.real, J.imag, SF(Zc), levels=levels, colors='white', linewidths=1,
                 linestyles='solid')# this means that the flow is evaluated at Juc(z) since c_flow(Z)=C_flow(csi(Z))
-        self._axes.clear()
+        tmp.remove()
 
-        self._style()
         self._axes.set_xlim(-w, w)
-        self._axes.set_xlim(-w, w)
+        self._axes.set_ylim(-w, w)
+        self._axes.set_aspect("equal")
         self._axes.plot(Aerofoil.real, Aerofoil.imag, color='white')
+
+        start_points = []
 
         self.lengths = []
         self.colors = []
@@ -177,85 +189,82 @@ class StreamFunction(FigureElement):
                 continue
 
             for path in paths:
-                x = path.vertices[:, 0]
-                y = path.vertices[:, 1]
-                points = np.array([x, y]).T.reshape(-1, 1, 2)
-                segments = np.concatenate([points[:-1], points[1:]], axis=1)
-                n = len(segments)
+                start_points.append(path.vertices[0])
 
-                D = np.sqrt(((points[1:] - points[:-1]) ** 2).sum(axis=-1))
-                L = D.cumsum().reshape(n, 1)# + np.random.uniform(0, 1)
-                C = np.ones((n, 4))
-                C[:, [3]] = (L * 1.5) % 1
+        def out_of_bounds(line, xlim, ylim):
+            outside_xlim = (line[:, 0] < xlim[0]) | (line[:, 0] > xlim[1])
+            outside_ylim = (line[:, 1] < ylim[0]) | (line[:, 1] > ylim[1])
 
-                # linewidths = np.zeros(n)
-                # linewidths[:] = 1.5 - ((L.reshape(n)*1.5) % 1)
+            if outside_xlim | outside_ylim:
+                return True
 
-                # line = LineCollection(segments, color=colors, linewidth=linewidths)
-                line = LineCollection(segments, color=C, linewidth=0.5)
-                self.lengths.append(L)
-                self.colors.append(C)
-                self.lines.append(line)
+            return False
 
-                self._axes.add_collection(line)
+        def stationary(line, e=0.001):
+            print(line[-1, 0])
+            dispx = line[-1, 0] - line[-2, 0]
+            dispy = line[-1, 1] - line[-2, 1]
+
+            if dispx**2 + dispy**2 < e**2:
+                return True
+
+            return False
+
+        thresh = 0.00001
+        sx, sy = [], []
+        for point in start_points:
+            xs = [point[0]]
+            ys = [point[1]]
+            while True:
+
+                new_pt = self.displace([[xs[-1], ys[-1]]], 0.05)[0]
+
+                if (not (-3.5 < new_pt[0] and new_pt[0] < 3.5) or (not (-3.5 < new_pt[1] and new_pt[1] < 3.5))):
+                    break
+                elif ((new_pt[0] - xs[-1]) < thresh) and ((new_pt[1] - ys[-1]) < thresh):
+                    break
+
+                xs.append(new_pt[0])
+                ys.append(new_pt[1])
+
+            sx.append(xs)
+            sy.append(ys)
+
+        self.lengths = []
+        self.colors = []
+        self.lines = []
+
+        for xs, ys in zip(sx, sy):
+            points = np.array([xs, ys]).T.reshape(-1, 1, 2)
+            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+            n = len(segments)
+
+            D = np.sqrt(((points[1:] - points[:-1]) ** 2).sum(axis=-1))
+            D.fill(.1)
+            L = D.cumsum().reshape(n, 1)  # + np.random.uniform(0, 1)
+            C = np.ones((n, 4))
+            C[:, [3]] = (L * 1.5) % 1
+
+            # linewidths = np.zeros(n)
+            # linewidths[:] = 1.5 - ((L.reshape(n)*1.5) % 1)
+
+            # line = LineCollection(segments, color=colors, linewidth=linewidths)
+            line = LineCollection(segments, color=C, linewidth=0.5)
+            self.lengths.append(L)
+            self.colors.append(C)
+            self.lines.append(line)
+
+            self._axes.add_collection(line)
 
         #self._my_plot = self._axes.streamplot(Zm.real, Zm.imag, u(Zm.real, Zm.imag), v(Zm.real, Zm.imag), color='white')
-        """
-        thresh = 0.00001
-        xs, ys = [], []
-        for p in self.pts:
-            x = [p[0]]
-            y = [p[1]]
-            while True:
-                new_pt = self.displace([[x[-1], y[-1]]], 0.05)[0]
 
-                if (not (-3 < new_pt[0] and new_pt[0] < 3) or (not (-3 < new_pt[1] and new_pt[1] < 3))):
-                    x.append(new_pt[0])
-                    y.append(new_pt[1])
-                    break
-                elif ((new_pt[0] - x[-1]) < thresh) and ((new_pt[1] - y[-1]) < thresh):
-                    x.append(new_pt[0])
-                    y.append(new_pt[1])
-                    break
 
-                x.append(new_pt[0])
-                y.append(new_pt[1])
 
-            xs.append(x)
-            ys.append(y)
-
-        for x, y in zip(xs, ys):
-            self._axes.plot(x, y, color="white")
-
-        self._axes.add_patch(Circle((0, 0), radius=1, edgecolor="white", facecolor='w', linewidth=1))
-        
-        """
-        self._axes.set_aspect("equal", "datalim")
-
-        self.p = []
-    """
-    @staticmethod
-    def _velocity_field(psi):
-        u = sympy.lambdify((x, y), psi.diff(y), 'numpy')
-        v = sympy.lambdify((x, y), -psi.diff(x), 'numpy')
-        return u, v
-    """
     def _refresh(self, p):
-
         for i in range(len(self.lines)):
             self.lengths[i] -= 0.05
             self.colors[i][:, [3]] = (self.lengths[i] * 1.5) % 1
             self.lines[i].set_color(self.colors[i])
-        """Update locations of "particles" in flow on each frame frame
-        self.p = list(self.p)
-        self.p.append((-3, random_y((-3, 3))))
-        self.p = self.displace(self.p, 0.05)
-        self.p = np.asarray(self.p)
-        self.p = remove_particles(self.p, (-3, 3), (-3, 3))
-
-        x, y = np.asarray(self.p).transpose()
-        lines, = self._axes.plot(x, y, 'ro')
-        """
 
 
 

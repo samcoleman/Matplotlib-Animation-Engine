@@ -11,6 +11,8 @@ from Transform import TranslateX
 from typing import List, Tuple
 from myMaths import Vec3D
 
+from AxesElements import AxesData
+
 
 def cylinder_stream_function(U=1, R=1):
     r = sympy.sqrt(x ** 2 + y ** 2)
@@ -41,9 +43,10 @@ if __name__ == '__main__':
     #text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .5))], .5),
     #                       KeyFrame([TranslateX(0), Scale(2)], 1.)])
 
-    sf = ae.add_element(StreamFunction(0, 10, Vec2D(.25, .25), Vec2D(.5, .5),
-                                       main_fig, cylinder_stream_function))
+    sine = ae.add_element(Cube(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig))
+    #sf = ae.add_element(StreamFunction(0, 10, Vec2D(.25, .25), Vec2D(.5, .5),
+    #                                   main_fig, cylinder_stream_function))
 
-    #ae.browse()
+    ae.browse()
 
-    ae.render('test2', 5)
+    #ae.render('test2', 5)

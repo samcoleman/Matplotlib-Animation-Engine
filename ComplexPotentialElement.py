@@ -1,4 +1,4 @@
-from FigureElements import AxesElement
+from AxesElements import AxesElement
 import numpy as np
 import numpy.ma as ma
 from myMaths import Vec2D

@@ -1,6 +1,7 @@
 from AnimationEngine import AnimationEngine
 from BasicElements import *
 from GraphElements import *
+from ComplexPotential import *
 
 import sympy
 from sympy.abc import x, y, z
@@ -43,7 +44,25 @@ if __name__ == '__main__':
     #text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .5))], .5),
     #                       KeyFrame([TranslateX(0), Scale(2)], 1.)])
 
-    sine = ae.add_element(Cube(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig))
+    U = 1
+    a = 1
+    c = .1
+    alpha = 0  # 2*np.pi/16
+    beta = 0  # .1
+
+    C = Circle(0, a)
+
+    gamma = -4 * np.pi * U * a * np.sin(beta + alpha)  # Circulation
+
+    F = U * z * sympy.exp(-1j * alpha) + \
+        U * (a ** 2) * sympy.exp(1j * alpha) / z - \
+        1j * gamma * sympy.ln(z) / (2 * np.pi)
+
+    levels = np.arange(-2.8, 4.8, 0.2).tolist()
+
+    cp = ae.add_element(JoukowskiAerofoil(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig,
+                                          levels, axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')))
+
     #sf = ae.add_element(StreamFunction(0, 10, Vec2D(.25, .25), Vec2D(.5, .5),
     #                                   main_fig, cylinder_stream_function))
 

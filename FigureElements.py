@@ -2,8 +2,17 @@ from AnimationElement import AnimationElement
 from myMaths import Vec2D
 from Transform import *
 
+class AxesData:
+    def __init__(self, **kwargs):
+        self.xlim = [-1, 1]
+        self.ylim = [-1, 1]
 
-class FigureElement(AnimationElement):
+class AxesStyling:
+    def __init__(self, **kwargs):
+        self.facecolor = 
+
+
+class AxesElement(AnimationElement):
     def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D,
                  main_fig, label, projection):
         super().__init__(start, duration, position)

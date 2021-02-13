@@ -1,5 +1,5 @@
-from myMaths import Vec2D
-from KeyFrame import KeyFrameManager, KeyFrame
+from Engine.MathsHelpers import Vec2D
+from Engine.Keyframe.Keyframe import KeyFrameManager, KeyFrame
 from typing import List
 
 

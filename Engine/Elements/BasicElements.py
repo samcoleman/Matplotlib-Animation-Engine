@@ -1,9 +1,6 @@
-from AnimationElement import AnimationElement
-from myMaths import Vec2D
+from Engine.Elements.AnimationElement import AnimationElement
 
-from Transform import *
-
-import math
+from Engine.Keyframe.Transform import *
 
 
 class TextElement(AnimationElement):

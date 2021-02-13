@@ -1,18 +1,10 @@
-from AnimationEngine import AnimationEngine
-from BasicElements import *
-from GraphElements import *
-from ComplexPotential import *
+from Engine.AnimationEngine import AnimationEngine
+from Engine.Elements.BasicElements import *
+from Engine.Elements.GraphElements import *
+from Engine.Elements.ComplexPotential import *
 
 import sympy
 from sympy.abc import x, y, z
-
-from KeyFrame import KeyFrame
-from Transform import TranslateX
-
-from typing import List, Tuple
-from myMaths import Vec3D
-
-from AxesElements import AxesData
 
 
 def cylinder_stream_function(U=1, R=1):
@@ -60,12 +52,16 @@ if __name__ == '__main__':
 
     levels = np.arange(-2.8, 4.8, 0.2).tolist()
 
-    cp = ae.add_element(JoukowskiAerofoil(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig,
-                                          levels, axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')))
+    cp = ae.add_element(Sine(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig))
 
+    """
+    cp = ae.add_element(ComplexPotential(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig,
+                                         F, levels, C, lambda Z: np.absolute(Z) <= a,
+                                         axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')))
+    """
     #sf = ae.add_element(StreamFunction(0, 10, Vec2D(.25, .25), Vec2D(.5, .5),
     #                                   main_fig, cylinder_stream_function))
 
     ae.browse()
 
-    #ae.render('test2', 5)
+    #ae.render('test2', 10)

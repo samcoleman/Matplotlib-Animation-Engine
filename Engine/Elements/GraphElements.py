@@ -1,6 +1,6 @@
-from AxesElements import AxesElement, AxesData
+from Engine.Elements.AxesElement import AxesElement, AxesData
 import numpy as np
-from myMaths import Vec2D
+from Engine.MathsHelpers import Vec2D
 
 
 class Cube(AxesElement):
@@ -19,10 +19,6 @@ class Cube(AxesElement):
 
     def _refresh(self, p):
         self._axes.view_init(elev=30., azim=p * 360)
-        self._axes.set_anchor((0.5 + p / 2, 0.5))
-        self._axes.set_xlim(-2 + p, 2 - p)
-        self._axes.set_ylim(-2 + p, 2 - p)
-        self._axes.set_zlim(-2 + p, 2 - p)
 
 
 class Sine(AxesElement):
@@ -32,13 +28,11 @@ class Sine(AxesElement):
 
     def _style(self):
         super(Sine, self)._style()
-        self._axes.spines["bottom"].set_color('red')
 
     def _init(self):
         self._my_plot, = self._axes.plot(self.x, 1 + np.sin(self.x), color='white')
 
     def _refresh(self, p):
-        print("update")
         self._my_plot.set_data(self.x, 1 + np.sin(self.x - p))
 
 

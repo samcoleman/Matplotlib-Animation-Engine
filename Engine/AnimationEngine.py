@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.widgets import Slider
 
-import AnimationElement
+from Theme import Theme
+
+from Engine.Elements import AnimationElement
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
@@ -52,7 +54,7 @@ class AnimationEngine:
         self._writer = animation.writers['ffmpeg'](fps=self._fps, codec=None, bitrate=8000)
 
         self._axes.set_position([0, 0, 1, 1])
-        self._axes.set_facecolor('#008cff')
+        self._axes.set_facecolor(Theme.color.primary)
 
     def get_ar(self):
         return self._aspectRatio

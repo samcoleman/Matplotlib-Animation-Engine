@@ -1,7 +1,6 @@
-from AnimationElement import AnimationElement
-from myMaths import Vec2D
-from Transform import *
-from Theme import Theme
+from Engine.Elements.AnimationElement import AnimationElement
+from Engine.Keyframe.Transform import *
+from Engine.Theme import Theme
 
 from matplotlib.pyplot import Axes as Ax
 from mpl_toolkits.mplot3d import Axes3D
@@ -78,6 +77,10 @@ class AxesData:
 
 class AxesStyle:
     facecolor = Theme.color.primary
+    alpha = 0
+    spine_color = Theme.color.text
+    tickline_color = Theme.color.text
+    ticklabel_color = Theme.color.text
 
     def __init__(self, **kwargs):
         members = [attr for attr in dir(AxesData) if not
@@ -86,6 +89,12 @@ class AxesStyle:
         for key, value in kwargs.items():
             if key in members:
                 setattr(self, key, value)
+
+    def apply(self, axes: Union[Ax, Axes3D]):
+        axes.patch.set_alpha(self.alpha)
+        axes.tick_params('both', color=Theme.color.text, labelcolor=Theme.color.text)
+
+        [s.set_color(self.spine_color) for s in axes.spines.values()]
 
 
 class AxesElement(AnimationElement):
@@ -104,6 +113,8 @@ class AxesElement(AnimationElement):
         self.axes_data.apply(self._axes)
 
     def _style(self):
+        self.axes_style.apply(self._axes)
+        """
         self._axes.patch.set_alpha(0)
         self._axes.spines["top"].set_color('white')
         self._axes.spines["bottom"].set_color('white')
@@ -113,6 +124,7 @@ class AxesElement(AnimationElement):
         self._axes.set_xlabel("x-label", color="white")
         self._axes.tick_params(axis='y', colors='white')
         self._axes.set_ylabel("y-label", color="white")
+        """
 
     def _instantiate(self):
         self._inset()

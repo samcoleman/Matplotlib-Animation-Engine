@@ -1,14 +1,14 @@
-from AxesElements import AxesElement, AxesData, AxesStyle
+from Engine.Elements.AxesElement import AxesElement, AxesData, AxesStyle
 import numpy as np
 import numpy.ma as ma
-from myMaths import Vec2D
+from Engine.MathsHelpers import Vec2D
 from matplotlib.collections import LineCollection
 
 import sympy
 from sympy.abc import x, y, z
 from scipy import integrate
 
-from Theme import Theme
+from Engine.Theme import Theme
 
 
 def ode_scipy(f, pts, dt):
@@ -160,6 +160,9 @@ class ComplexPotential(AxesElement):
         self._body_plot()
 
     def _refresh(self, p):
+        self._axes.set_xlim(-3 + p, 3 - p)
+        self._axes.set_ylim(-3 + p, 3 - p)
+
         for i in range(len(self.lines)):
             self.lengths[i] -= 0.05
             self.colors[i][:, [3]] = (self.lengths[i] * 1.5) % 1

@@ -1,5 +1,5 @@
-from myMaths import Vec2D, Vec3D
-from KeyFrame import KeyFrameObject
+from Engine.MathsHelpers import Vec2D, Vec3D
+from Engine.Keyframe.Keyframe import KeyFrameObject
 from typing import Union
 
 

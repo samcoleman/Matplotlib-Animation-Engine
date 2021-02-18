@@ -1,7 +1,9 @@
 from Engine.AnimationEngine import AnimationEngine
-from Engine.Elements.BasicElements import *
-from Engine.Elements.GraphElements import *
 from Engine.Elements.ComplexPotential import *
+from Engine.Keyframe.Keyframe import *
+from Engine.Keyframe.Transform import *
+
+from Engine.Elements.GraphElements import Sine
 
 import sympy
 from sympy.abc import x, y, z
@@ -16,25 +18,22 @@ def cylinder_stream_function(U=1, R=1):
 if __name__ == '__main__':
     ae = AnimationEngine(1080, 24)
 
-    ar = ae.get_ar()
-
     main_fig, main_axes = ae.get_fig()
 
-    """
+
     sequence = [([Translate2D(Vec2D(.25, .75)),
                   Rotate(45)], .5),
                 ([Translate2D(Vec2D(.75, .25)),
-                  Scale(2, False),
-                  Rotate(45, False)], 1.)]
+                  Scale(2),
+                  Rotate(45)], 1.)]
 
-    sequence2 = [([Translate2D(Vec2D(.25, 0), False),
-                   Scale2D(Vec2D(2, 0))], 1.)]
-    """
+    sequence2 = [KeyFrame([Translate2D(Vec2D(.25, 0), absolute=False)], 1.)]
+
 
     text = ae.add_element(TextElement(0, 10, Vec2D(.5, .8), main_axes, "Hello", 72,
                                       horizontalalignment='center', verticalalignment='center', color='white'))
-    #text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .5))], .5),
-    #                       KeyFrame([TranslateX(0), Scale(2)], 1.)])
+    text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .5)), Rotate(45)], .5),
+                           KeyFrame([TranslateX(0), Scale(2, absolute=False)], 1.)])
 
     U = 1
     a = 1
@@ -53,6 +52,8 @@ if __name__ == '__main__':
     levels = np.arange(-2.8, 4.8, 0.2).tolist()
 
     cp = ae.add_element(Sine(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig))
+    print(type(cp))
+    cp.attach_keyframes(sequence2)
 
     """
     cp = ae.add_element(ComplexPotential(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig,

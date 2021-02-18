@@ -1,5 +1,6 @@
 from Engine.Elements.AnimationElement import AnimationElement
-from Engine.Keyframe.Transform import *
+
+from Engine.MathsHelpers import Vec2D, Vec3D
 from Engine.Theme import Theme
 
 from matplotlib.pyplot import Axes as Ax
@@ -103,6 +104,7 @@ class AxesElement(AnimationElement):
         super().__init__(start, duration, position)
         self._size = size
         self._main_fig = main_fig
+        self._axes = None
         self.label = label
         self.axes_data = axes_data
         self.axes_style = axes_style
@@ -126,10 +128,12 @@ class AxesElement(AnimationElement):
         self._axes.set_ylabel("y-label", color="white")
         """
 
+    def get_axes(self):
+        return self._axes
+
     def _instantiate(self):
         self._inset()
         self._style()
-        self._keyframeMng.attach_handle(self._axes)
         try:
             return self._init()
         except Exception as detail:

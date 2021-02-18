@@ -1,6 +1,5 @@
 from Engine.Elements.AnimationElement import AnimationElement
-
-from Engine.Keyframe.Transform import *
+from Engine.MathsHelpers import Vec2D
 
 
 class TextElement(AnimationElement):
@@ -17,7 +16,8 @@ class TextElement(AnimationElement):
         self._textElem = self._axes.text(self._position.x, self._position.y, self._text,
                                          self._textArgs, fontsize=self._size)
 
-        self._keyframeMng.attach_handle(self._textElem)
+    def get_text(self):
+        return self._textElem
 
     def _update(self, p):
         self._keyframeMng.update(p)

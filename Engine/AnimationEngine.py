@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.widgets import Slider
 
-from Theme import Theme
+from Engine.Theme import Theme
 
 from Engine.Elements import AnimationElement
 

@@ -1,5 +1,5 @@
 from Engine.MathsHelpers import Vec2D
-from Engine.Keyframe.Keyframe import KeyFrameManager, KeyFrame
+from Engine.Keyframe.Keyframe import KeyFrameManager
 from typing import List
 
 
@@ -14,8 +14,11 @@ class AnimationElement:
 
         self._keyframeMng = KeyFrameManager()
 
-    def attach_keyframes(self, k: List[KeyFrame]):
-        self._keyframeMng.attach_keyframes(k)
+    def attach_keyframes(self, k, handle=None):
+        if handle is None:
+            self._keyframeMng.attach_keyframes(k, self)
+        else:
+            self._keyframeMng.attach_keyframes(k, handle)
 
     def update(self, frame, fps):
         # Progress from 0-1

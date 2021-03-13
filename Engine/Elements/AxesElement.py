@@ -1,13 +1,12 @@
 from Engine.Elements.AnimationElement import AnimationElement
 
-from Engine.MathsHelpers import Vec2D, Vec3D
+from Engine.MathsHelpers import Vec2D
 from Engine.Theme import Theme
 
 from matplotlib.pyplot import Axes as Ax
 from mpl_toolkits.mplot3d import Axes3D
 
 from typing import Union
-
 
 class AxesData:
     axes_on = True
@@ -99,60 +98,22 @@ class AxesStyle:
 
 
 class AxesElement(AnimationElement):
-    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D,
-                 main_fig, label, axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
-        super().__init__(start, duration, position)
+    def __init__(self, position: Vec2D, size: Vec2D, label,
+                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
+        super().__init__(position)
         self._size = size
-        self._main_fig = main_fig
-        self._axes = None
         self.label = label
         self.axes_data = axes_data
         self.axes_style = axes_style
+
+    def get_axes(self):
+        return self._axes
 
     def _inset(self):
         self._axes = self._main_fig.add_axes([self._position.x, self._position.y, self._size.x, self._size.y],
                                              label=self.label, anchor='C', projection=self.axes_data.projection)
         self.axes_data.apply(self._axes)
-
-    def _style(self):
         self.axes_style.apply(self._axes)
-        """
-        self._axes.patch.set_alpha(0)
-        self._axes.spines["top"].set_color('white')
-        self._axes.spines["bottom"].set_color('white')
-        self._axes.spines["left"].set_color('white')
-        self._axes.spines["right"].set_color('white')
-        self._axes.tick_params(axis='x', colors='white')
-        self._axes.set_xlabel("x-label", color="white")
-        self._axes.tick_params(axis='y', colors='white')
-        self._axes.set_ylabel("y-label", color="white")
-        """
-
-    def get_axes(self):
-        return self._axes
-
-    def _instantiate(self):
-        self._inset()
-        self._style()
-        try:
-            return self._init()
-        except Exception as detail:
-            print("Error:", detail)
-        return 0
-
-    def _init(self):
-        raise Exception("Figure Init Not Implemented")
-
-    def _update(self, p):
-        self._keyframeMng.update(p)
-        try:
-            return self._refresh(p)
-        except Exception as detail:
-            print("Error:", detail)
-        return 0
-
-    def _refresh(self, p):
-        raise Exception("Figure Refresh Not Implemented")
 
     def _cleanup(self):
         self._axes.remove()

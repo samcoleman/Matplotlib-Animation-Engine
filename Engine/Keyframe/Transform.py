@@ -1,13 +1,13 @@
 from Engine.MathsHelpers import Vec2D, Vec3D
-from Engine.Keyframe.Keyframe import KeyFrameObject
+from Engine.Keyframe.Keyframe import KeyframeObject
 from typing import Union
 
 from Engine.Elements.BasicElements import TextElement
 from Engine.Elements.AxesElement import AxesElement
 
 
-class Transform(KeyFrameObject):
-    def __init__(self, end: Union[float, Vec2D, Vec3D], absolute: bool = True):
+class Transform(KeyframeObject):
+    def __init__(self, end: Union[float, Vec2D, Vec3D], absolute: bool = False):
         super(Transform, self).__init__()
         self._start = None
         self._end = end
@@ -27,7 +27,7 @@ class Transform(KeyFrameObject):
 
 
 class TranslateX(Transform):
-    def __init__(self, end: float, absolute: bool = True):
+    def __init__(self, end: float, absolute: bool = False):
         super(TranslateX, self).__init__(end, absolute)
 
     def _set_start(self):
@@ -37,7 +37,7 @@ class TranslateX(Transform):
         elif isinstance(self._handle, AxesElement):
             self._start = self._handle.get_axes().get_position().x0
 
-    def _update(self, adj_progress: float):
+    def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
             new_pos_x = self._interp(adj_progress)
             current_pos = self._handle.get_text().get_position()
@@ -53,7 +53,7 @@ class TranslateX(Transform):
 
 
 class TranslateY(Transform):
-    def __init__(self, end: float, absolute: bool = True):
+    def __init__(self, end: float, absolute: bool = False):
         super(TranslateY, self).__init__(end, absolute)
 
     def _set_start(self):
@@ -63,7 +63,7 @@ class TranslateY(Transform):
         elif isinstance(self._handle, AxesElement):
             self._start = self._handle.get_axes().get_position().y0
 
-    def _update(self, adj_progress: float):
+    def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
             new_pos_y = self._interp(adj_progress)
             current_pos = self._handle.get_text().get_position()
@@ -79,7 +79,7 @@ class TranslateY(Transform):
 
 
 class Translate2D(Transform):
-    def __init__(self, end: Vec2D, absolute: bool = True):
+    def __init__(self, end: Vec2D, absolute: bool = False):
         super(Translate2D, self).__init__(end, absolute)
 
     def _set_start(self):
@@ -88,7 +88,7 @@ class Translate2D(Transform):
         elif isinstance(self._handle, AxesElement):
             self._start = Vec2D(self._handle.get_axes().get_position().x0, self._handle.get_axes().get_position().y0)
 
-    def _update(self, adj_progress: float):
+    def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
             new_pos = self._interp(adj_progress)
             self._handle.get_text().set_position(new_pos)
@@ -102,7 +102,7 @@ class Translate2D(Transform):
 
 
 class Rotate(Transform):
-    def __init__(self, end: float, origin: Vec2D = Vec2D(0, 0), absolute: bool = True):
+    def __init__(self, end: float, origin: Vec2D = Vec2D(0, 0), absolute: bool = False):
         # Minus is to make positive rotations clockwise
         super(Rotate, self).__init__(-end, absolute)
         self._origin = origin
@@ -114,7 +114,7 @@ class Rotate(Transform):
             # Not worked this out yet
             return
 
-    def _update(self, adj_progress: float):
+    def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
             new_rot = self._interp(adj_progress)
             self._handle.get_text().set_rotation(new_rot)
@@ -145,7 +145,7 @@ class Scale(Transform):
             height = current_state.y1 - current_state.y0
             self._start = Vec2D(width, height)
 
-    def _update(self, adj_progress: float):
+    def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
             new_size = self._interp(adj_progress)
             self._handle.get_text().set_fontsize(new_size)
@@ -182,7 +182,7 @@ class Scale2D(Transform):
             height = current_state.y1 - current_state.y0
             self._start = Vec2D(width, height)
 
-    def _update(self, adj_progress: float):
+    def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
             # N/A?
             return

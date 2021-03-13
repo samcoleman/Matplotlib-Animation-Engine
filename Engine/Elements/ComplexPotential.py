@@ -62,11 +62,11 @@ def displace_func_from_velocity_funcs(u_func, v_func):
 
 
 class ComplexPotential(AxesElement):
-    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf,
+    def __init__(self, position: Vec2D, size: Vec2D,
                  complex_potential, levels, body=None, mask=lambda pos: False,
                  axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
 
-        super(ComplexPotential, self).__init__(start, duration, position, size, mf, 'sf', axes_data, axes_style)
+        super(ComplexPotential, self).__init__(position, size, 'sf', axes_data, axes_style)
         self._cp = complex_potential
         self._levels = levels
         self._body = body
@@ -146,7 +146,7 @@ class ComplexPotential(AxesElement):
         if self._body is not None:
             self._axes.plot(self._body.real, self._body.imag, color=Theme.color.text)
 
-    def _init(self):
+    def _instantiate(self):
         X = np.arange(self.axes_data.xlim[0]*1.1, self.axes_data.xlim[1]*1.1, 0.025)
         Y = np.arange(self.axes_data.ylim[0]*1.1, self.axes_data.ylim[1]*1.1, 0.025)
         X, Y = np.meshgrid(X, Y)
@@ -159,9 +159,9 @@ class ComplexPotential(AxesElement):
         self._velocity_plot()
         self._body_plot()
 
-    def _refresh(self, p):
-        self._axes.set_xlim(-3 + p, 3 - p)
-        self._axes.set_ylim(-3 + p, 3 - p)
+    def _update(self, progress: float, duration: float):
+        self._axes.set_xlim(-3 + progress, 3 - progress)
+        self._axes.set_ylim(-3 + progress, 3 - progress)
 
         for i in range(len(self.lines)):
             self.lengths[i] -= 0.05
@@ -170,11 +170,11 @@ class ComplexPotential(AxesElement):
 
 
 class JoukowskiAerofoil(ComplexPotential):
-    def __init__(self, start: float, duration: float, position: Vec2D, size: Vec2D, mf,
+    def __init__(self, position: Vec2D, size: Vec2D,
                  levels,
                  axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
 
-        super(JoukowskiAerofoil, self).__init__(start, duration, position, size, mf, 'sf', axes_data, axes_style)
+        super(JoukowskiAerofoil, self).__init__(position, size, 'sf', axes_data, axes_style)
         self._levels = levels
 
     def _contour_plot(self, temp=False):
@@ -189,7 +189,7 @@ class JoukowskiAerofoil(ComplexPotential):
             tmp.remove()
             return cp
 
-    def _init(self):
+    def _instantiate(self):
         # Why is this needed?
 
         self.axes_data = AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')
@@ -215,7 +215,6 @@ class JoukowskiAerofoil(ComplexPotential):
         C = Circle(c_centre, a)
         self._body = Jac(C, lam)
 
-
         gamma = -4*np.pi*U*a*np.sin(beta+alpha) #Circulation
         # Stagnation flow
         # F = 0.5 * (z**2)
@@ -229,8 +228,7 @@ class JoukowskiAerofoil(ComplexPotential):
         self._contour_plot()
         self._body_plot()
 
-
-    def _refresh(self, p):
+    def _update(self, progress: float, duration: float):
         for i in range(len(self.lines)):
             self.lengths[i] -= 0.05
             self.colors[i][:, [3]] = (self.lengths[i] * 1.5) % 1

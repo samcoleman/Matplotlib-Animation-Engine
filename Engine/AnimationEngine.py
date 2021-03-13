@@ -59,25 +59,39 @@ class AnimationEngine:
     def get_ar(self):
         return self._aspectRatio
 
-    def get_fig(self):
-        return self._fig, self._axes
-
-    def add_element(self, elem: AnimationElement):
+    def add_element(self, elem: AnimationElement, start: float, duration: float):
+        # Add [Element, Start_time, End_time]
+        elem.attach_timings(start, start+duration)
+        elem.attach_main_scene(self._fig, self._axes)
         self._animElements.append(elem)
         return elem
 
+    def _update_element(self, elem: AnimationElement):
+        start_time, end_time = elem.get_timings()
+        duration = end_time - start_time
+
+        # Progress from 0-1
+        # Minus one start/end zero indexed so last frame object is not shown
+        progress = (self._frame - (start_time * self._fps)) / ((duration * self._fps) - 1)
+        # ACTIVE
+        if start_time * self._fps <= self._frame < end_time * self._fps:
+            elem.update(progress, duration)
+        # INACTIVE
+        else:
+            elem.cleanup()
+
     def _update_elements(self):
         for elem in self._animElements:
-            elem.update(self._frame, self._fps)
+            self._update_element(elem)
 
     def _slider_update(self, val):
         self._frame = val
         self._update_elements()
         self._fig.canvas.draw()
 
-    def browse(self):
+    def browse(self, runtime: float):
         frame_slider_ax = self._fig.add_axes([0.25, 0.1, 0.65, 0.03], label='frame_slider', facecolor='black', zorder=10000)
-        frame_slider = Slider(frame_slider_ax, 'Frame', 0, 239, valinit=0, valstep=1)
+        frame_slider = Slider(frame_slider_ax, 'Frame', 0, int(runtime * self._fps) - 1, valinit=0, valstep=1)
         self._update_elements()
         frame_slider.on_changed(self._slider_update)
         plt.show()

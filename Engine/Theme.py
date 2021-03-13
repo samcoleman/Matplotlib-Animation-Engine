@@ -1,6 +1,7 @@
 class Theme:
     class color:
-        primary = '#001484'
+        primary = '#172445'
+        #primary = '#001484'
         #primary = '#003153'
         secondary = '#008cff'
         text = "#FFFFFF"

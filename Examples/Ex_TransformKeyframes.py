@@ -3,7 +3,6 @@ from Engine.AnimationEngine import AnimationEngine
 from Engine.Keyframe.Keyframe import *
 from Engine.Keyframe.Transform import *
 
-
 ae = AnimationEngine(1080, 24)
 
 # Consecutive Absolute Transforms
@@ -29,7 +28,7 @@ sequence5 = [KeyFrame([Translate2D(Vec2D(.2, .2), True)], .13),
              KeyFrame([Translate2D(Vec2D(.8, .2), True)], start_t=.43, end_t=.56),
              KeyFrame([Translate2D(Vec2D(.5, .8), True)], start_t=.76, end_t=1.0)]
 
-# Unordered, broken links, thought this would break it tbh
+# Unordered, broken, thought this would break it tbh
 sequence6 = [KeyFrame([Translate2D(Vec2D(.2, .2), True)], end_t=.33),
              KeyFrame([Scale(2)], start_t=0, end_t=.15),
              KeyFrame([Translate2D(Vec2D(.8, .2), True)], start_t=.33, end_t=.66),

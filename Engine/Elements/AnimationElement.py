@@ -17,7 +17,7 @@ class AnimationElement:
         self._main_fig, self._main_axes = None, None
 
         # Double underscore as _attach_parameter & _get_parameter should only be used
-        self._instance_id, self.__global_parameter_manager = None, None
+        self._instance_id, self._global_parameter_manager = None, None
 
         self._position = position
 
@@ -38,8 +38,10 @@ class AnimationElement:
 
     def attach_parameter_manager(self, instance_id: str, param_manager: GlobalParameterManager):
         self._instance_id = instance_id
-        self.__global_parameter_manager = param_manager
 
+        # Double underscore so that not tempted to use in the polymorphic classes above?
+        self._global_parameter_manager = param_manager
+        self._global_parameter_manager.attach_local_parameters(self._instance_id, self._parameters)
         # Attach the local parameters globally / for browse editing of parameters omitted until implemented
         #for local_key in self._parameters:
         #    self.__global_parameter_manager.attach_parameter(self._instance_id + local_key, self._parameters[local_key])
@@ -51,10 +53,7 @@ class AnimationElement:
     def _get_parameter(self, local_key: str):
         return self._parameters[local_key]
 
-        # Merger of local parameters doesnt update the global manager
-        #return self.__global_parameter_manager.get_parameter(self._instance_id+local_key)
-
-    # Saves havign to write .get_value()
+    # Saves having to write .get_value()
     def _get_parameter_value(self, local_key: str):
         return self._parameters[local_key].get_value()
 

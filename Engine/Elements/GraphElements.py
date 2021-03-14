@@ -35,7 +35,7 @@ class Sine(AxesElement):
         self._my_plot, = self._axes.plot(self.x, np.sin(self.x), color='white')
 
     def _update(self, progress: float, duration: float):
-        self._my_plot.set_data(self.x, np.sin(self.x - self._get_parameter('offset').get_value()))
+        self._my_plot.set_data(self.x, np.sin(self.x - self._get_parameter_value('offset')))
 
 
 

@@ -15,19 +15,16 @@ class Parameter:
         return self._value
 
 
+# This can be used by the browse window for interactive parameter adjustment
 class GlobalParameterManager:
     def __init__(self):
-        self._parameters: Dict[str, Parameter] = dict()
+        self._global_parameters: Dict[str, Dict[str, Parameter]] = dict()
 
-    def attach_parameter(self, global_key: str, param: Parameter):
-        self._parameters[global_key] = param
+    def attach_local_parameters(self, instance_name: str, param: Dict[str, Parameter]):
+        self._global_parameters[instance_name] = param
 
-    def get_parameter(self, global_key: str):
-        return self._parameters[global_key]
-
-    # As Parameter is mutable, both keys will point to the same Parameter object
-    def merge_parameters(self, key_kept: str, key_overwrite: str):
-        self._parameters[key_overwrite] = self._parameters[key_kept]
+    def get_parameter(self, instance_name: str, local_key: str) -> Parameter:
+        return self._global_parameters[instance_name][local_key]
 
 
 class ParameterKeyframeObject(KeyframeObject):

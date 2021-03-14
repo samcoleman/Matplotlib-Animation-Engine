@@ -64,8 +64,9 @@ class AnimationEngine:
     def add_element(self, elem: AnimationElement, start: float, duration: float):
         elem.attach_timings(start, start+duration)
         elem.attach_main_scene(self._fig, self._axes)
-        inst = type(elem).__name__+"_"+str(sum(type(elem).__name__ == type(e).__name__ for e in self._animElements))
-        elem.attach_parameter_manager(inst, self._global_parameter_manager)
+        # Creates a unique instance name for the element which is human readable
+        inst_name = type(elem).__name__+str(sum(type(elem).__name__ == type(e).__name__ for e in self._animElements))
+        elem.attach_parameter_manager(inst_name, self._global_parameter_manager)
         self._animElements.append(elem)
         return elem
 

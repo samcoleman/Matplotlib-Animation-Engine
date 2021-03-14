@@ -17,19 +17,37 @@ Sine2 = ae.add_element(Sine(Vec2D(.55, .25), Vec2D(.35, .5), axes_data=AxesData(
 Sine1Params = Sine1.get_parameters()
 Sine2Params = Sine2.get_parameters()
 
-# This is Reactive programming?
-Sine2Params['offset'] = Sine1Params['offset']
+case = 2
 
-Sine1Params['offset'].set_value(2)
+# Setting parameter values and attaching keyframe sequence using SetParam
+if case == 0:
+    Sine1Params['offset'].set_value(2)
+    Sine2Params['offset'].set_value(-2)
+    sequence1 = [KeyFrame([SetParam(Sine1Params['offset'], 1)], start_t=.33, end_t=.66),
+                 KeyFrame([SetParam(Sine1Params['offset'], 0)], start_t=.66, end_t=1.0)]
+    sequence2 = [KeyFrame([SetParam(Sine2Params['offset'], -1)], start_t=.33, end_t=0.66),
+                 KeyFrame([SetParam(Sine2Params['offset'], 0)],  start_t=.66, end_t=1.0)]
+    Sine1.attach_keyframes(sequence1)
+    Sine2.attach_keyframes(sequence2)
 
-sequenceA = [KeyFrame([SetParam(Sine1Params['offset'], 1)], start_t=.33, end_t=.5),
-             KeyFrame([SetParam(Sine1Params['offset'], 2)], start_t=.5, end_t=.66)]
+# Using InterpParam
+elif case == 1:
+    Sine1Params['offset'].set_value(2)
+    Sine2Params['offset'].set_value(-2)
+    sequence1 = [KeyFrame([InterpParam(Sine1Params['offset'], 2, 0)], start_t=.33, end_t=0.66)]
+    sequence2 = [KeyFrame([InterpParam(Sine2Params['offset'], -2, 0)], start_t=.33, end_t=0.66)]
+    Sine1.attach_keyframes(sequence1)
+    Sine2.attach_keyframes(sequence2)
 
-#sequenceB1 = [KeyFrame([InterpParam(Sine1Params['offset'], 2, 0)], start_t=.33, end_t=0.66)]
-#sequenceB2 = [KeyFrame([InterpParam(Sine2Params['offset'], -2, 0)], start_t=.33, end_t=0.66)]
-
-
-Sine1.attach_keyframes(sequenceA)
+# Linking of parameters, reactive programming?
+elif case == 2:
+    Sine2Params['offset'] = Sine1Params['offset']
+    Sine1Params['offset'].set_value(0)
+    sequenceA = [KeyFrame([SetParam(Sine1Params['offset'], 1)], start_t=.33, end_t=.66),
+                 KeyFrame([SetParam(Sine1Params['offset'], 2)], start_t=.66, end_t=1.0)]
+    Sine1.attach_keyframes(sequenceA)
+    # Note Sine2.attach_keyframes not needed as when the Sine1 offset parameter changes it automatically updates
+    # Sine2 offset (they the same object)
 
 
 ae.browse(10)

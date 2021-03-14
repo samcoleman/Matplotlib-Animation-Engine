@@ -38,14 +38,13 @@ cp2 = ae.add_element(ComplexPotential(Vec2D(.11, .5), Vec2D(.33, .33),
                                      axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')),
                      0, 10)
 
-# Not working?
-
 jk = ae.add_element(JoukowskiAerofoil(Vec2D(.5, .11), Vec2D(.33, .33),
                                       levels, c=.1, alpha=0.1, beta=0.1, typ="contour",
                                       axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')),
                     0, 10)
 
 # Getting extra line and some weird errors increasing values, integration error?? Might need to transform CF first
+# Need to re-write for speed and baking graph data so will fix then
 jk2 = ae.add_element(JoukowskiAerofoil(Vec2D(.5, .5), Vec2D(.33, .33),
                                        levels, c=.1, alpha=0.1, beta=0.1, typ="velocity",
                                        axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')),

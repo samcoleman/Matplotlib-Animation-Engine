@@ -3,6 +3,7 @@ import numpy as np
 import numpy.ma as ma
 from Engine.MathsHelpers import Vec2D
 from matplotlib.collections import LineCollection
+from matplotlib.contour import QuadContourSet
 
 import sympy
 from sympy.abc import x, y, z
@@ -64,7 +65,7 @@ def displace_func_from_velocity_funcs(u_func, v_func):
 class ComplexPotential(AxesElement):
     def __init__(self, position: Vec2D, size: Vec2D,
                  complex_potential, levels, body=None, mask=lambda pos: False, typ="contour",
-                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
+                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()) -> None:
 
         super(ComplexPotential, self).__init__(position, size, 'sf', axes_data, axes_style)
         self._cp = complex_potential
@@ -75,7 +76,7 @@ class ComplexPotential(AxesElement):
 
         self.lines = []
 
-    def _contour_plot(self, temp=False):
+    def _contour_plot(self, temp=False) -> QuadContourSet:
         if not temp:
             return self._axes.contour(self.Z.real, self.Z.imag, self.SF(self.Z), levels=self._levels, colors=Theme.color.text,
                                       linewidths=.5, linestyles='solid')
@@ -89,7 +90,7 @@ class ComplexPotential(AxesElement):
             return cp
 
     # This is very, very slow but looks sick
-    def _velocity_plot(self):
+    def _velocity_plot(self) -> None:
         start_points = []
 
         cp = self._contour_plot(True)
@@ -148,11 +149,11 @@ class ComplexPotential(AxesElement):
 
             self._axes.add_collection(line)
 
-    def _body_plot(self):
+    def _body_plot(self) -> None:
         if self._body is not None:
             self._axes.plot(self._body.real, self._body.imag, color=Theme.color.text, linewidth=0.5)
 
-    def _instantiate(self):
+    def _instantiate(self) -> None:
         X = np.arange(self.axes_data.xlim[0]*1.1, self.axes_data.xlim[1]*1.1, 0.025)
         Y = np.arange(self.axes_data.ylim[0]*1.1, self.axes_data.ylim[1]*1.1, 0.025)
         X, Y = np.meshgrid(X, Y)
@@ -168,7 +169,7 @@ class ComplexPotential(AxesElement):
             self._velocity_plot()
         self._body_plot()
 
-    def _update(self, progress: float, duration: float):
+    def _update(self, progress: float, duration: float) -> None:
         #self._axes.set_xlim(-3 + progress, 3 - progress)
         #self._axes.set_ylim(-3 + progress, 3 - progress)
 
@@ -181,7 +182,7 @@ class ComplexPotential(AxesElement):
 class JoukowskiAerofoil(ComplexPotential):
     def __init__(self, position: Vec2D, size: Vec2D,
                  levels, c=.1, alpha=0, beta=0, typ="contour",
-                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
+                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()) -> None:
 
         super(JoukowskiAerofoil, self).__init__(position, size, 'sf', axes_data, axes_style)
         self._levels = levels
@@ -191,7 +192,7 @@ class JoukowskiAerofoil(ComplexPotential):
         self._beta = beta
 
     # A copy of previous but with transforms, should combine with first one
-    def _contour_plot(self, temp=False):
+    def _contour_plot(self, temp=False) -> QuadContourSet:
         if not temp:
             return self._axes.contour(self.J.real, self.J.imag, self.SF(self.Zc), levels=self._levels, colors=Theme.color.text,
                                       linewidths=.5, linestyles='solid')
@@ -204,7 +205,7 @@ class JoukowskiAerofoil(ComplexPotential):
             return cp
 
     # Ditto
-    def _velocity_plot(self):
+    def _velocity_plot(self) -> None:
         start_points = []
 
         cp = self._contour_plot(True)
@@ -273,7 +274,7 @@ class JoukowskiAerofoil(ComplexPotential):
 
             self._axes.add_collection(line)
 
-    def _instantiate(self):
+    def _instantiate(self) -> None:
         # Why is this line needed?
         self.axes_data = AxesData(xlim=[-3, 3], ylim=[-3, 3], aspect='equal')
 
@@ -317,7 +318,7 @@ class JoukowskiAerofoil(ComplexPotential):
             self._velocity_plot()
         self._body_plot()
 
-    def _update(self, progress: float, duration: float):
+    def _update(self, progress: float, duration: float) -> None:
         for i in range(len(self.lines)):
             self.lengths[i] -= 0.05
             self.colors[i][:, [3]] = (self.lengths[i] * 1.5) % 1

@@ -6,7 +6,7 @@ from Engine.Keyframe.Parameter import Parameter
 
 class Cube(AxesElement):
     def __init__(self, position: Vec2D, size: Vec2D,
-                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
+                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()) -> None:
         axes_data.projection = '3d'
 
         super(Cube, self).__init__(position, size, 'Cube', axes_data, axes_style)
@@ -17,24 +17,24 @@ class Cube(AxesElement):
         self.y = np.sin(self.Phi) * np.sin(self.Theta)
         self.z = np.cos(self.Theta) / np.sqrt(2)
 
-    def _instantiate(self):
+    def _instantiate(self) -> None:
         self._my_plot = self._axes.plot_wireframe(self.x, self.y, self.z, color='white')
 
-    def _update(self, progress: float, duration: float):
+    def _update(self, progress: float, duration: float) -> None:
         self._axes.view_init(elev=30., azim=progress * 360)
 
 
 class Sine(AxesElement):
     def __init__(self, position: Vec2D, size: Vec2D,
-                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
+                 axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()) -> None:
         super(Sine, self).__init__(position, size, "Sine", axes_data, axes_style)
         self.x = np.arange(-2.0, 2.0, 0.01)
         self._create_parameter('offset', Parameter(0))
 
-    def _instantiate(self):
+    def _instantiate(self) -> None:
         self._my_plot, = self._axes.plot(self.x, np.sin(self.x), color='white')
 
-    def _update(self, progress: float, duration: float):
+    def _update(self, progress: float, duration: float) -> None:
         self._my_plot.set_data(self.x, np.sin(self.x - self._get_parameter_value('offset')))
 
 

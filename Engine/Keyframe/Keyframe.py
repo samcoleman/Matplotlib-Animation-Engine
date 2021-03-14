@@ -2,69 +2,69 @@ from typing import List, Union, Callable
 import operator
 
 
-def clamp(n, minn, maxn):
+def clamp(n: float, minn: float, maxn: float) -> float:
     return max(min(maxn, n), minn)
 
 
 class KeyframeObject:
-    def __init__(self):
-        self._handle = None
+    def __init__(self) -> None:
+        self._handle: any = None
         self._set_s = False
 
-    def attach_handle(self, h):
+    def attach_handle(self, h: any) -> None:
         # Only attach handle if there is not one already, this is used for parameters to ensure not overwritten
         if self._handle is None:
             self._handle = h
 
-    def set_start(self):
+    def set_start(self) -> None:
         self._set_start()
         self._post_start()
 
-    def _set_start(self):
-        return 0
+    def _set_start(self) -> None:
+        return
 
-    def _post_start(self):
-        return 0
+    def _post_start(self) -> None:
+        return
 
-    def update(self, adj_progress: float, duration: float):
+    def update(self, adj_progress: float, duration: float) -> None:
         self._update(adj_progress, duration)
         self._post_update(adj_progress, duration)
 
     # This function is triggered when current frame is moved backwards during browse and Parameter needs to return
     # to original state (called after update)
-    def reset(self):
-        return 0
+    def reset(self) -> None:
+        return
 
-    def _update(self, adj_progress: float, duration: float):
-        return 0
+    def _update(self, adj_progress: float, duration: float) -> None:
+        return
 
-    def _post_update(self, adj_progress: float, duration: float):
-        return 0
+    def _post_update(self, adj_progress: float, duration: float) -> None:
+        return
 
 
 class KeyFrame:
     def __init__(self, keyobjs: List[KeyframeObject], end_t: float, start_t: Union[float, None] = None,
-                 fn: Callable[[float], float] = lambda y: y):
+                 fn: Callable[[float], float] = lambda y: y) -> None:
         self._update_start_called = False
         self._key_objs = keyobjs
         self._start_t = start_t
         self._end_t = end_t
         self._fn = fn
 
-    def set_start_time(self, start: float):
+    def set_start_time(self, start: float) -> None:
         self._start_t = start
 
-    def get_start_time(self):
+    def get_start_time(self) -> float:
         return self._start_t
 
-    def get_end_time(self):
+    def get_end_time(self) -> float:
         return self._end_t
 
-    def attach_handle(self, h):
+    def attach_handle(self, h: any) -> None:
         for key in self._key_objs:
             key.attach_handle(h)
 
-    def update_start(self):
+    def update_start(self) -> None:
         if self._update_start_called is False:
             for key in self._key_objs:
                 key.set_start()
@@ -73,7 +73,7 @@ class KeyFrame:
 
             self._update_start_called = True
 
-    def update(self, progress: float, duration: float):
+    def update(self, progress: float, duration: float) -> None:
         adjusted_progress = clamp((progress - self._start_t)/(self._end_t-self._start_t), 0, 1)
 
         for key in self._key_objs:
@@ -88,51 +88,51 @@ class KeyFrame:
 
 class KeyFrameManager:
     def __init__(self):
-        self._keyframes = None
+        self._sequence: Union[None, List[KeyFrame]] = None
         self._last_progress, self._max_progress = 0, 0
         self._start_baked = False
 
-    def attach_keyframes(self, keyframes: List[KeyFrame], handle):
-        self._keyframes = keyframes
+    def attach_sequence(self, sequence: List[KeyFrame], handle: any) -> None:
+        self._sequence = sequence
 
         # Setup the start time for each keyframe if not already set, allows for quick keyframing
-        for i in range(len(self._keyframes)):
-            if self._keyframes[i].get_start_time() is None:
+        for i in range(len(self._sequence)):
+            if self._sequence[i].get_start_time() is None:
                 if i == 0:
                     # Set start time to 0 if the first item
-                    self._keyframes[i].set_start_time(0)
+                    self._sequence[i].set_start_time(0)
                 else:
                     # Otherwise set to the end-time of previous keyframe
-                    self._keyframes[i].set_start_time(self._keyframes[i-1].get_end_time())
+                    self._sequence[i].set_start_time(self._sequence[i - 1].get_end_time())
 
-            self._keyframes[i].attach_handle(handle)
+            self._sequence[i].attach_handle(handle)
 
         # Sort keyframe so they appear in ascending order by _start_t
         # Should help resolve user input errors and be more consistent
-        self._keyframes = sorted(self._keyframes, key=operator.attrgetter('_start_t'))
+        self._sequence = sorted(self._sequence, key=operator.attrgetter('_start_t'))
         # Inplace sort, use if memory is a problem but really doubt it
         #x.sort(key=operator.attrgetter('score'))
 
-    def attach_handle(self, h):
-        if self._keyframes is None:
+    def attach_handle(self, h: any) -> None:
+        if self._sequence is None:
             # Cannot attach handles if keyframes don't exist
             return
 
-        for key in self._keyframes:
+        for key in self._sequence:
             key.attach_handle(h)
 
     # The whole sequence is run through in order once hitting each important time,
     # This correctly sets the start points for each KeyframeObject,
     # May acc be necessary for render_update as progress==keyframe.get_start() unlikely??
-    def bake_starts(self, duration: float):
+    def bake_starts(self, duration: float) -> None:
         key_times = []
-        for keyframe in self._keyframes:
+        for keyframe in self._sequence:
             key_times.extend([keyframe.get_start_time(), keyframe.get_end_time()])
 
         # Sorted may be unnecessary
         key_times = sorted(set(key_times))
         for time in key_times:
-            for keyframe in self._keyframes:
+            for keyframe in self._sequence:
                 if time >= keyframe.get_end_time():
                     keyframe.update(1, duration)
 
@@ -147,8 +147,8 @@ class KeyFrameManager:
     # Every update, every previous keyframe is run again
     # Potench create a render_update and browse_update if becomes an issue
 
-    def update(self, progress: float, duration: float):
-        if self._keyframes is None:
+    def update(self, progress: float, duration: float) -> None:
+        if self._sequence is None:
             # Exit if keyframes have not been attached
             return
 
@@ -160,7 +160,7 @@ class KeyFrameManager:
 
         # Forward time progression
         if progress >= self._last_progress:
-            for keyframe in self._keyframes:
+            for keyframe in self._sequence:
                 if progress >= keyframe.get_end_time():
                     keyframe.update(1, duration)
 
@@ -168,7 +168,7 @@ class KeyFrameManager:
                     keyframe.update(progress, duration)
         # Backwards time progression
         else:
-            for keyframe in reversed(self._keyframes):
+            for keyframe in reversed(self._sequence):
                 if progress < keyframe.get_start_time():
                     # -1 not 0 so it can signify to the component to reset to original value
                     keyframe.update(-1, duration)

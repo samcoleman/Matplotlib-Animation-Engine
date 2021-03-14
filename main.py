@@ -12,8 +12,8 @@ if __name__ == '__main__':
                                       horizontalalignment='center', verticalalignment='center', color='white'),
                           0, 10)
 
-    text.attach_keyframes([KeyFrame([Translate2D(Vec2D(.5, .5)), Rotate(45)], .5),
-                           KeyFrame([TranslateX(0), Scale(2, absolute=False)], 1.)])
+    text.attach_sequence([KeyFrame([Translate2D(Vec2D(.5, .5)), Rotate(45)], .5),
+                          KeyFrame([TranslateX(0), Scale(2, absolute=False)], 1.)])
 
     # cp = ae.add_element(Sine(0, 10, Vec2D(.25, .25), Vec2D(.5, .5), main_fig))
     # params = cp.get_parameters()

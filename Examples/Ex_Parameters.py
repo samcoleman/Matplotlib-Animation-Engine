@@ -27,8 +27,8 @@ if case == 0:
                  KeyFrame([SetParam(Sine1Params['offset'], 0)], start_t=.66, end_t=1.0)]
     sequence2 = [KeyFrame([SetParam(Sine2Params['offset'], -1)], start_t=.33, end_t=0.66),
                  KeyFrame([SetParam(Sine2Params['offset'], 0)],  start_t=.66, end_t=1.0)]
-    Sine1.attach_keyframes(sequence1)
-    Sine2.attach_keyframes(sequence2)
+    Sine1.attach_sequence(sequence1)
+    Sine2.attach_sequence(sequence2)
 
 # Using InterpParam
 elif case == 1:
@@ -36,8 +36,8 @@ elif case == 1:
     Sine2Params['offset'].set_value(-2)
     sequence1 = [KeyFrame([InterpParam(Sine1Params['offset'], 2, 0)], start_t=.33, end_t=0.66)]
     sequence2 = [KeyFrame([InterpParam(Sine2Params['offset'], -2, 0)], start_t=.33, end_t=0.66)]
-    Sine1.attach_keyframes(sequence1)
-    Sine2.attach_keyframes(sequence2)
+    Sine1.attach_sequence(sequence1)
+    Sine2.attach_sequence(sequence2)
 
 # Linking of parameters, reactive programming?
 elif case == 2:
@@ -45,7 +45,7 @@ elif case == 2:
     Sine1Params['offset'].set_value(0)
     sequenceA = [KeyFrame([SetParam(Sine1Params['offset'], 1)], start_t=.33, end_t=.66),
                  KeyFrame([SetParam(Sine1Params['offset'], 2)], start_t=.66, end_t=1.0)]
-    Sine1.attach_keyframes(sequenceA)
+    Sine1.attach_sequence(sequenceA)
     # Note Sine2.attach_keyframes not needed as when the Sine1 offset parameter changes it automatically updates
     # Sine2 offset (they the same object)
 

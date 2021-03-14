@@ -42,6 +42,6 @@ text = ae.add_element(TextElement(Vec2D(.5, .8), "Hello", 72,
                       0, 10)
 
 # Switch sequences here
-text.attach_keyframes(sequence6)
+text.attach_sequence(sequence6)
 
 ae.browse(10)

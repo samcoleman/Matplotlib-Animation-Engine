@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Callable
 import operator
 
 
@@ -12,7 +12,7 @@ class KeyframeObject:
         self._set_s = False
 
     def attach_handle(self, h):
-        # Only attach handle if there is not one already
+        # Only attach handle if there is not one already, this is used for parameters to ensure not overwritten
         if self._handle is None:
             self._handle = h
 
@@ -30,16 +30,21 @@ class KeyframeObject:
         self._update(adj_progress, duration)
         self._post_update(adj_progress, duration)
 
+    # This function is triggered when current frame is moved backwards during browse and Parameter needs to return
+    # to original state (called after update)
+    def reset(self):
+        return 0
+
     def _update(self, adj_progress: float, duration: float):
         return 0
 
-    # This function is called after update handle is called
     def _post_update(self, adj_progress: float, duration: float):
         return 0
 
 
 class KeyFrame:
-    def __init__(self, keyobjs: List[KeyframeObject], end_t: float, start_t: Union[float, None] = None, fn=lambda y: y):
+    def __init__(self, keyobjs: List[KeyframeObject], end_t: float, start_t: Union[float, None] = None,
+                 fn: Callable[[float], float] = lambda y: y):
         self._update_start_called = False
         self._key_objs = keyobjs
         self._start_t = start_t
@@ -74,6 +79,11 @@ class KeyFrame:
         for key in self._key_objs:
             # Hmm might cause problems for duration? Not that im using for alt yet
             key.update(self._fn(adjusted_progress), duration)
+
+        # When keyframeObjs are needed to reset from browse going backwards
+        if progress == -1:
+            for key in self._key_objs:
+                key.reset()
 
 
 class KeyFrameManager:
@@ -160,7 +170,8 @@ class KeyFrameManager:
         else:
             for keyframe in reversed(self._keyframes):
                 if progress < keyframe.get_start_time():
-                    keyframe.update(0, duration)
+                    # -1 not 0 so it can signify to the component to reset to original value
+                    keyframe.update(-1, duration)
 
                 if keyframe.get_start_time() <= progress < keyframe.get_end_time():
                     keyframe.update(progress, duration)

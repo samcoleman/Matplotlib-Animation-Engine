@@ -6,7 +6,7 @@ import matplotlib.animation as animation
 from matplotlib.widgets import Slider
 
 from Engine.Theme import Theme
-
+from Engine.Keyframe.Parameter import GlobalParameterManager
 from Engine.Elements import AnimationElement
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -56,13 +56,16 @@ class AnimationEngine:
         self._axes.set_position([0, 0, 1, 1])
         self._axes.set_facecolor(Theme.color.primary)
 
+        self._global_parameter_manager = GlobalParameterManager()
+
     def get_ar(self):
         return self._aspectRatio
 
     def add_element(self, elem: AnimationElement, start: float, duration: float):
-        # Add [Element, Start_time, End_time]
         elem.attach_timings(start, start+duration)
         elem.attach_main_scene(self._fig, self._axes)
+        inst = type(elem).__name__+"_"+str(sum(type(elem).__name__ == type(e).__name__ for e in self._animElements))
+        elem.attach_parameter_manager(inst, self._global_parameter_manager)
         self._animElements.append(elem)
         return elem
 

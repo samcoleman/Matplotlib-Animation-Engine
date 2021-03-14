@@ -29,12 +29,13 @@ class Sine(AxesElement):
                  axes_data: AxesData = AxesData(), axes_style: AxesStyle = AxesStyle()):
         super(Sine, self).__init__(position, size, "Sine", axes_data, axes_style)
         self.x = np.arange(-2.0, 2.0, 0.01)
+        self._create_parameter('offset', Parameter(0))
 
     def _instantiate(self):
         self._my_plot, = self._axes.plot(self.x, np.sin(self.x), color='white')
 
     def _update(self, progress: float, duration: float):
-        self._my_plot.set_data(self.x, np.sin(self.x - progress))
+        self._my_plot.set_data(self.x, np.sin(self.x - self._get_parameter('offset').get_value()))
 
 
 

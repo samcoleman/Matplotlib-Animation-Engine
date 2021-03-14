@@ -1,13 +1,7 @@
 from Engine.AnimationEngine import AnimationEngine
 
-from Engine.Keyframe.Parameter import *
 from Engine.Keyframe.Keyframe import *
 from Engine.Keyframe.Transform import *
-
-from Engine.Elements.GraphElements import Sine
-
-import sympy
-from sympy.abc import x, y, z
 
 if __name__ == '__main__':
     ae = AnimationEngine(1080, 24)

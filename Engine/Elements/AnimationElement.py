@@ -3,6 +3,7 @@ from Engine.Keyframe.Keyframe import KeyFrameManager
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.text import Text
 
 from Engine.Keyframe.Keyframe import KeyFrame
 from Engine.Keyframe.Parameter import GlobalParameterManager, Parameter
@@ -26,14 +27,13 @@ class AnimationElement:
         self._position = position
 
         self._keyframeMng = KeyFrameManager()
-
         self._parameters: Dict[str, Parameter] = dict()
 
     # Removed this functionality, my be reused if keyframes and parameters unified
     # def attach_sequence(self, sequence: List[KeyFrame], handle: any = None) -> None:
     def attach_sequence(self, sequence: List[KeyFrame]) -> None:
         # if handle is None:
-        self._keyframeMng.attach_sequence(sequence, self)
+        self._keyframeMng.attach_sequence(sequence)
         # else:
         #     self._keyframeMng.attach_sequence(sequence, handle)
 
@@ -68,10 +68,19 @@ class AnimationElement:
         self._main_fig = main_fig
         self._main_axes = main_axes
 
+    # Return types so far
+    # Might regret this?
+    def _get_handle(self) -> Union[None, Axes, Text]:
+        return
+
     # These are separated for ease of use later so super() call is not needed
     # Used to draw element onto the main_fig/main_axes
     def _inset(self) -> None:
         return
+
+    def instantiate(self) -> None:
+        self._instantiate()
+        self._keyframeMng.attach_handle(self._get_handle())
 
     # Used to initialise the element
     def _instantiate(self) -> None:
@@ -81,7 +90,7 @@ class AnimationElement:
         if self._instantiated is False:
             self._instantiated = True
             self._inset()
-            self._instantiate()
+            self.instantiate()
 
         self._keyframeMng.update(progress, duration)
         self._update(progress, duration)

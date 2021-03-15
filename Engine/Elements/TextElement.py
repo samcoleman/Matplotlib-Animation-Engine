@@ -18,7 +18,7 @@ class TextElement(AnimationElement):
         self._textElem = self._main_axes.text(self._position.x, self._position.y, self._text,
                                               self._textArgs, fontsize=self._size)
 
-    def get_text(self) -> Text:
+    def _get_handle(self) -> Text:
         return self._textElem
 
     def _update(self, progress: float, duration: float):

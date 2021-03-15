@@ -1,5 +1,5 @@
 from Engine.AnimationEngine import AnimationEngine
-from Engine.Elements.BasicElements import TextElement
+from Engine.Elements.TextElement import TextElement
 from Engine.MathsHelpers import Vec2D
 
 ae = AnimationEngine(1080, 24)

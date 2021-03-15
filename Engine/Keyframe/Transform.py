@@ -2,8 +2,8 @@ from Engine.MathsHelpers import Vec2D, Vec3D
 from Engine.Keyframe.Keyframe import KeyframeObject
 from typing import Union
 
-from Engine.Elements.BasicElements import TextElement
-from Engine.Elements.AxesElement import AxesElement
+from matplotlib.axes import Axes
+from matplotlib.text import Text
 
 
 class Transform(KeyframeObject):
@@ -28,25 +28,25 @@ class TranslateX(Transform):
         super(TranslateX, self).__init__(end, absolute)
 
     def _set_start(self):
-        if isinstance(self._handle, TextElement):
-            start_pos = self._handle.get_text().get_position()
+        if isinstance(self._handle, Text):
+            start_pos = self._handle.get_position()
             self._i_value = start_pos[0]
-        elif isinstance(self._handle, AxesElement):
-            self._i_value = self._handle.get_axes().get_position().x0
+        elif isinstance(self._handle, Axes):
+            self._i_value = self._handle.get_position().x0
 
     def _update(self, adj_progress: float, duration: float):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             new_pos_x = self._interp(adj_progress)
-            current_pos = self._handle.get_text().get_position()
-            self._handle.get_text().set_position((new_pos_x, current_pos[1]))
-        elif isinstance(self._handle, AxesElement):
+            current_pos = self._handle.get_position()
+            self._handle.set_position((new_pos_x, current_pos[1]))
+        elif isinstance(self._handle, Axes):
             new_pos_x = self._interp(adj_progress)
             # Returns Bbox [[x0, y0], [x1, y1]]
-            current_state = self._handle.get_axes().get_position()
+            current_state = self._handle.get_position()
             width = current_state.x1 - current_state.x0
             current_state.x0 = new_pos_x
             current_state.x1 = new_pos_x + width
-            self._handle.get_axes().set_position(current_state)
+            self._handle.set_position(current_state)
 
 
 class TranslateY(Transform):
@@ -54,25 +54,25 @@ class TranslateY(Transform):
         super(TranslateY, self).__init__(end, absolute)
 
     def _set_start(self):
-        if isinstance(self._handle, TextElement):
-            start_pos = self._handle.get_text().get_position()
+        if isinstance(self._handle, Text):
+            start_pos = self._handle.get_position()
             self._i_value = start_pos[1]
-        elif isinstance(self._handle, AxesElement):
-            self._i_value = self._handle.get_axes().get_position().y0
+        elif isinstance(self._handle, Axes):
+            self._i_value = self._handle.get_position().y0
 
     def _update(self, adj_progress: float, duration: float):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             new_pos_y = self._interp(adj_progress)
-            current_pos = self._handle.get_text().get_position()
-            self._handle.get_text().set_position((current_pos[0], new_pos_y))
-        elif isinstance(self._handle, AxesElement):
+            current_pos = self._handle.get_position()
+            self._handle.set_position((current_pos[0], new_pos_y))
+        elif isinstance(self._handle, Axes):
             new_pos_y = self._interp(adj_progress)
             # Returns Bbox [[x0, y0], [x1, y1]]
-            current_state = self._handle.get_axes().get_position()
+            current_state = self._handle.get_position()
             height = current_state.y1 - current_state.y0
             current_state.y0 = new_pos_y
             current_state.y1 = new_pos_y + height
-            self._handle.get_axes().set_position(current_state)
+            self._handle.set_position(current_state)
 
 
 class Translate2D(Transform):
@@ -80,22 +80,22 @@ class Translate2D(Transform):
         super(Translate2D, self).__init__(end, absolute)
 
     def _set_start(self):
-        if isinstance(self._handle, TextElement):
-            self._i_value = Vec2D(self._handle.get_text().get_position())
-        elif isinstance(self._handle, AxesElement):
-            self._i_value = Vec2D(self._handle.get_axes().get_position().x0, self._handle.get_axes().get_position().y0)
+        if isinstance(self._handle, Text):
+            self._i_value = Vec2D(self._handle.get_position())
+        elif isinstance(self._handle, Axes):
+            self._i_value = Vec2D(self._handle.get_position().x0, self._handle.get_position().y0)
 
     def _update(self, adj_progress: float, duration: float):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             new_pos = self._interp(adj_progress)
-            self._handle.get_text().set_position(new_pos)
-        elif isinstance(self._handle, AxesElement):
+            self._handle.set_position(new_pos)
+        elif isinstance(self._handle, Axes):
             new_pos = self._interp(adj_progress)
             # Returns Bbox [[x0, y0], [x1, y1]]
-            current_state = self._handle.get_axes().get_position()
+            current_state = self._handle.get_position()
             width = current_state.x1 - current_state.x0
             height = current_state.y1 - current_state.y0
-            self._handle.get_axes().set_position((new_pos.x, new_pos.y, width, height))
+            self._handle.set_position((new_pos.x, new_pos.y, width, height))
 
 
 class Rotate(Transform):
@@ -105,17 +105,17 @@ class Rotate(Transform):
         self._origin = origin
 
     def _set_start(self):
-        if isinstance(self._handle, TextElement):
-            self._i_value = self._handle.get_text().get_rotation()
-        elif isinstance(self._handle, AxesElement):
+        if isinstance(self._handle, Text):
+            self._i_value = self._handle.get_rotation()
+        elif isinstance(self._handle, Axes):
             # Not worked this out yet
             return
 
     def _update(self, adj_progress: float, duration: float):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             new_rot = self._interp(adj_progress)
-            self._handle.get_text().set_rotation(new_rot)
-        elif isinstance(self._handle, AxesElement):
+            self._handle.set_rotation(new_rot)
+        elif isinstance(self._handle, Axes):
             # Not worked this out yet
             return
 
@@ -134,24 +134,24 @@ class Scale(Transform):
             self._f_value = self._i_value * self._rel_f_value
 
     def _set_start(self):
-        if isinstance(self._handle, TextElement):
-            self._i_value = self._handle.get_text().get_fontsize()
-        elif isinstance(self._handle, AxesElement):
-            current_state = self._handle.get_axes().get_position()
+        if isinstance(self._handle, Text):
+            self._i_value = self._handle.get_fontsize()
+        elif isinstance(self._handle, Axes):
+            current_state = self._handle.get_position()
             width = current_state.x1 - current_state.x0
             height = current_state.y1 - current_state.y0
             self._i_value = Vec2D(width, height)
 
     def _update(self, adj_progress: float, duration: float):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             new_size = self._interp(adj_progress)
-            self._handle.get_text().set_fontsize(new_size)
-        elif isinstance(self._handle, AxesElement):
+            self._handle.set_fontsize(new_size)
+        elif isinstance(self._handle, Axes):
             new_size = self._interp(adj_progress)
-            current_state = self._handle.get_axes().get_position()
+            current_state = self._handle.get_position()
             current_state.x1 = current_state.x0 + new_size.x
             current_state.y1 = current_state.y0 + new_size.y
-            self._handle.get_axes().set_position(current_state)
+            self._handle.set_position(current_state)
 
 
 class Scale2D(Transform):
@@ -170,22 +170,22 @@ class Scale2D(Transform):
             self._f_value.y = self._i_value.y * self._rel_f_value.y
 
     def _set_start(self):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             # N/A?
             return
-        elif isinstance(self._handle, AxesElement):
-            current_state = self._handle.get_axes().get_position()
+        elif isinstance(self._handle, Axes):
+            current_state = self._handle.get_position()
             width = current_state.x1 - current_state.x0
             height = current_state.y1 - current_state.y0
             self._i_value = Vec2D(width, height)
 
     def _update(self, adj_progress: float, duration: float):
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             # N/A?
             return
-        elif isinstance(self._handle, AxesElement):
+        elif isinstance(self._handle, Axes):
             new_size = self._interp(adj_progress)
-            current_state = self._handle.get_axes().get_position()
+            current_state = self._handle.get_position()
             current_state.x1 = current_state.x0 + new_size.x
             current_state.y1 = current_state.y0 + new_size.y
-            self._handle.get_axes().set_position(current_state)
+            self._handle.set_position(current_state)

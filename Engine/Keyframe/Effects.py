@@ -2,8 +2,7 @@ from Engine.MathsHelpers import Vec2D, Vec3D
 from Engine.Keyframe.Keyframe import KeyframeObject
 from typing import Union
 
-from Engine.Elements.BasicElements import TextElement
-from Engine.Elements.AxesElement import AxesElement
+from matplotlib.text import Text
 
 
 class Alpha(KeyframeObject):
@@ -13,26 +12,15 @@ class Alpha(KeyframeObject):
         self._f_value = alpha
 
     def reset(self) -> None:
-        if isinstance(self._handle, TextElement):
-            self._handle.get_text().set_alpha(self._i_value)
-        elif isinstance(self._handle, AxesElement):
-            self._handle.get_axes().set_alpha(self._i_value)
+        self._handle.set_alpha(self._i_value)
 
     def _set_start(self) -> None:
-        if isinstance(self._handle, TextElement):
-            if self._handle.get_text().get_alpha() is None:
-                self._handle.get_text().set_alpha(1.)
-            self._i_value = self._handle.get_text().get_alpha()
-        elif isinstance(self._handle, AxesElement):
-            if self._handle.get_axes().get_alpha() is None:
-                self._handle.get_axes().set_alpha(1.)
-            self._i_value = self._handle.get_axes().get_alpha()
+        if self._handle.get_alpha() is None:
+            self._handle.set_alpha(1.)
+        self._i_value = self._handle.get_alpha()
 
     def _update(self, adj_progress: float, duration: float) -> None:
-        if isinstance(self._handle, TextElement):
-            self._handle.get_text().set_alpha(self._interp(adj_progress))
-        elif isinstance(self._handle, AxesElement):
-            self._handle.get_axes().set_alpha(self._interp(adj_progress))
+        self._handle.set_alpha(self._interp(adj_progress))
 
 
 class Typewrite(KeyframeObject):
@@ -40,13 +28,13 @@ class Typewrite(KeyframeObject):
         super(Typewrite, self).__init__()
 
     def _set_start(self) -> None:
-        if isinstance(self._handle, TextElement):
-            self._i_value = self._handle.get_text().get_text()
+        if isinstance(self._handle, Text):
+            self._i_value = self._handle.get_text()
 
     def _update(self, adj_progress: float, duration: float) -> None:
-        if isinstance(self._handle, TextElement):
+        if isinstance(self._handle, Text):
             pos = int(adj_progress*len(self._i_value))
-            self._handle.get_text().set_text(self._i_value[:pos])
+            self._handle.set_text(self._i_value[:pos])
 
 
 

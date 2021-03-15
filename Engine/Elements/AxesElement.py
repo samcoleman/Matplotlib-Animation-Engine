@@ -109,7 +109,7 @@ class AxesElement(AnimationElement):
         self.axes_data = axes_data
         self.axes_style = axes_style
 
-    def get_axes(self) -> Axes:
+    def _get_handle(self) -> Axes:
         return self._axes
 
     def _inset(self) -> None:

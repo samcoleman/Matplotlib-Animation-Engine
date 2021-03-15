@@ -9,7 +9,7 @@ from Engine.Keyframe.Parameter import SetParam, InterpParam
 ae = AnimationEngine(1080, 24)
 
 Sine1 = ae.add_element(Sine(Vec2D(.1, .25), Vec2D(.35, .5), axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3])),
-                      0, 10)
+                       0, 10)
 
 Sine2 = ae.add_element(Sine(Vec2D(.55, .25), Vec2D(.35, .5), axes_data=AxesData(xlim=[-3, 3], ylim=[-3, 3])),
                        0, 10)

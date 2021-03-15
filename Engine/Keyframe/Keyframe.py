@@ -1,6 +1,9 @@
 from typing import List, Union, Callable
 import operator
 
+from matplotlib.axes import Axes
+from matplotlib.text import Text
+
 
 def clamp(n: float, minn: float, maxn: float) -> float:
     return max(min(maxn, n), minn)
@@ -96,36 +99,32 @@ class KeyFrame:
 
 class KeyFrameManager:
     def __init__(self):
-        self._sequence: Union[None, List[KeyFrame]] = None
+        self._sequence: List[KeyFrame] = []
         self._last_progress, self._max_progress = 0, 0
         self._start_baked = False
 
-    def attach_sequence(self, sequence: List[KeyFrame], handle: any) -> None:
-        self._sequence = sequence
-
+    def attach_sequence(self, new_sequence: List[KeyFrame]) -> None:
         # Setup the start time for each keyframe if not already set, allows for quick keyframing
-        for i in range(len(self._sequence)):
-            if self._sequence[i].get_start_time() is None:
+        for i in range(len(new_sequence)):
+            if new_sequence[i].get_start_time() is None:
                 if i == 0:
                     # Set start time to 0 if the first item
-                    self._sequence[i].set_start_time(0)
+                    new_sequence[i].set_start_time(0)
                 else:
                     # Otherwise set to the end-time of previous keyframe
-                    self._sequence[i].set_start_time(self._sequence[i - 1].get_end_time())
-
-            self._sequence[i].attach_handle(handle)
+                    new_sequence[i].set_start_time(new_sequence[i - 1].get_end_time())
 
         # Sort keyframe so they appear in ascending order by _start_t
         # Should help resolve user input errors and be more consistent
+        self._sequence.extend(new_sequence)
         self._sequence = sorted(self._sequence, key=operator.attrgetter('_start_t'))
         # Inplace sort, use if memory is a problem but really doubt it
         #x.sort(key=operator.attrgetter('score'))
 
-    def attach_handle(self, h: any) -> None:
-        if self._sequence is None:
+    def attach_handle(self, h: Union[None, Axes, Text]) -> None:
+        if len(self._sequence) == 0:
             # Cannot attach handles if keyframes don't exist
             return
-
         for key in self._sequence:
             key.attach_handle(h)
 
@@ -156,7 +155,7 @@ class KeyFrameManager:
     # Potench create a render_update and browse_update if becomes an issue
 
     def update(self, progress: float, duration: float) -> None:
-        if self._sequence is None:
+        if len(self._sequence) == 0:
             # Exit if keyframes have not been attached
             return
 

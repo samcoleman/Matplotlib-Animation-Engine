@@ -1,6 +1,5 @@
 from Engine.AnimationEngine import AnimationEngine
-
-from Engine.Elements.GraphElements import Sine
+from Engine.Elements.TextElement import TextElement
 
 from Engine.Keyframe.Keyframe import *
 from Engine.Keyframe.Transform import *

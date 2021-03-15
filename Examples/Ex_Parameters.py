@@ -47,7 +47,7 @@ elif case == 2:
                  KeyFrame([SetParam(Sine1Params['offset'], 2)], start_t=.66, end_t=1.0)]
     Sine1.attach_sequence(sequenceA)
     # Note Sine2.attach_keyframes not needed as when the Sine1 offset parameter changes it automatically updates
-    # Sine2 offset (they the same object)
+    # Sine2 offset (they are the same object)
 
 
 ae.browse(10)

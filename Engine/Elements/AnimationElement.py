@@ -29,11 +29,13 @@ class AnimationElement:
 
         self._parameters: Dict[str, Parameter] = dict()
 
-    def attach_sequence(self, sequence: List[KeyFrame], handle: any = None) -> None:
-        if handle is None:
-            self._keyframeMng.attach_sequence(sequence, self)
-        else:
-            self._keyframeMng.attach_sequence(sequence, handle)
+    # Removed this functionality, my be reused if keyframes and parameters unified
+    # def attach_sequence(self, sequence: List[KeyFrame], handle: any = None) -> None:
+    def attach_sequence(self, sequence: List[KeyFrame]) -> None:
+        # if handle is None:
+        self._keyframeMng.attach_sequence(sequence, self)
+        # else:
+        #     self._keyframeMng.attach_sequence(sequence, handle)
 
     def attach_timings(self, start: float, end: float) -> None:
         self._start = start

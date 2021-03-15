@@ -13,6 +13,7 @@ from Engine.Elements import AnimationElement
 
 from typing import List
 
+
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 

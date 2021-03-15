@@ -11,6 +11,14 @@ class KeyframeObject:
         self._handle: any = None
         self._set_s = False
 
+        # Initial Value
+        self._i_value: any = None
+        # Final Value
+        self._f_value: any = None
+
+    def _interp(self, adj_progress: float) -> any:
+        return self._i_value + (self._f_value - self._i_value) * adj_progress
+
     def attach_handle(self, h: any) -> None:
         # Only attach handle if there is not one already, this is used for parameters to ensure not overwritten
         if self._handle is None:

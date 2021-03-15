@@ -7,23 +7,20 @@ from Engine.Elements.AxesElement import AxesElement
 
 
 class Transform(KeyframeObject):
-    def __init__(self, end: Union[float, Vec2D, Vec3D], absolute: bool = False):
+    def __init__(self, f_value: Union[float, Vec2D, Vec3D], absolute: bool = False):
         super(Transform, self).__init__()
-        self._start = None
-        self._end = end
+        self._i_value: Union[None, type(f_value)] = None
+        self._f_value = f_value
         self._abs = absolute
-        self._rel_end = None
-
-    def _interp(self, p):
-        return self._start + (self._end - self._start) * p
+        self._rel_f_value = None
 
     def _post_start(self):
-        if self._end is None or self._start is None:
+        if self._f_value is None or self._i_value is None:
             return
 
-        if self._abs is False and self._rel_end is None:
-            self._rel_end = self._end
-            self._end = self._start + self._rel_end
+        if self._abs is False and self._rel_f_value is None:
+            self._rel_f_value = self._f_value
+            self._f_value = self._i_value + self._rel_f_value
 
 
 class TranslateX(Transform):
@@ -33,9 +30,9 @@ class TranslateX(Transform):
     def _set_start(self):
         if isinstance(self._handle, TextElement):
             start_pos = self._handle.get_text().get_position()
-            self._start = start_pos[0]
+            self._i_value = start_pos[0]
         elif isinstance(self._handle, AxesElement):
-            self._start = self._handle.get_axes().get_position().x0
+            self._i_value = self._handle.get_axes().get_position().x0
 
     def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
@@ -59,9 +56,9 @@ class TranslateY(Transform):
     def _set_start(self):
         if isinstance(self._handle, TextElement):
             start_pos = self._handle.get_text().get_position()
-            self._start = start_pos[1]
+            self._i_value = start_pos[1]
         elif isinstance(self._handle, AxesElement):
-            self._start = self._handle.get_axes().get_position().y0
+            self._i_value = self._handle.get_axes().get_position().y0
 
     def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
@@ -84,9 +81,9 @@ class Translate2D(Transform):
 
     def _set_start(self):
         if isinstance(self._handle, TextElement):
-            self._start = Vec2D(self._handle.get_text().get_position())
+            self._i_value = Vec2D(self._handle.get_text().get_position())
         elif isinstance(self._handle, AxesElement):
-            self._start = Vec2D(self._handle.get_axes().get_position().x0, self._handle.get_axes().get_position().y0)
+            self._i_value = Vec2D(self._handle.get_axes().get_position().x0, self._handle.get_axes().get_position().y0)
 
     def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
@@ -109,7 +106,7 @@ class Rotate(Transform):
 
     def _set_start(self):
         if isinstance(self._handle, TextElement):
-            self._start = self._handle.get_text().get_rotation()
+            self._i_value = self._handle.get_text().get_rotation()
         elif isinstance(self._handle, AxesElement):
             # Not worked this out yet
             return
@@ -129,21 +126,21 @@ class Scale(Transform):
         self._origin = origin
 
     def _post_start(self):
-        if self._end is None or self._start is None:
+        if self._f_value is None or self._i_value is None:
             return
 
-        if self._abs is False and self._rel_end is None:
-            self._rel_end = self._end
-            self._end = self._start * self._rel_end
+        if self._abs is False and self._rel_f_value is None:
+            self._rel_f_value = self._f_value
+            self._f_value = self._i_value * self._rel_f_value
 
     def _set_start(self):
         if isinstance(self._handle, TextElement):
-            self._start = self._handle.get_text().get_fontsize()
+            self._i_value = self._handle.get_text().get_fontsize()
         elif isinstance(self._handle, AxesElement):
             current_state = self._handle.get_axes().get_position()
             width = current_state.x1 - current_state.x0
             height = current_state.y1 - current_state.y0
-            self._start = Vec2D(width, height)
+            self._i_value = Vec2D(width, height)
 
     def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):
@@ -163,14 +160,14 @@ class Scale2D(Transform):
         self._origin = origin
 
     def _post_start(self):
-        if self._end is None or self._start is None:
+        if self._f_value is None or self._i_value is None:
             return
 
-        if self._abs is False and self._rel_end is None:
-            self._rel_end = self._end
+        if self._abs is False and self._rel_f_value is None:
+            self._rel_f_value = self._f_value
             # Equivalent to dot product, not sure why can't just multiply?
-            self._end.x = self._start.x * self._rel_end.x
-            self._end.y = self._start.y * self._rel_end.y
+            self._f_value.x = self._i_value.x * self._rel_f_value.x
+            self._f_value.y = self._i_value.y * self._rel_f_value.y
 
     def _set_start(self):
         if isinstance(self._handle, TextElement):
@@ -180,7 +177,7 @@ class Scale2D(Transform):
             current_state = self._handle.get_axes().get_position()
             width = current_state.x1 - current_state.x0
             height = current_state.y1 - current_state.y0
-            self._start = Vec2D(width, height)
+            self._i_value = Vec2D(width, height)
 
     def _update(self, adj_progress: float, duration: float):
         if isinstance(self._handle, TextElement):

@@ -32,36 +32,26 @@ class ParameterKeyframeObject(KeyframeObject):
     def __init__(self, parameter: Parameter) -> None:
         super(ParameterKeyframeObject, self).__init__()
         self._handle = parameter
-        self._initial_value = parameter.get_value()
-
-    # Update initial value which what the parameter is originally, repeated incase the value has changed
-    #def _set_start(self):
-    #    self._initial_value = self._handle.get_value()
+        self._pre_value = parameter.get_value()
 
     def reset(self) -> None:
-        self._handle.set_value(self._initial_value)
+        self._handle.set_value(self._pre_value)
 
 
 class SetParam(ParameterKeyframeObject):
     def __init__(self, parameter: Parameter, value: any) -> None:
         super(SetParam, self).__init__(parameter)
-        self._value = value
+        self._f_value = value
 
     def _update(self, adj_progress: float, duration: float) -> None:
-        self._handle.set_value(self._value)
+        self._handle.set_value(self._f_value)
 
 
 class InterpParam(ParameterKeyframeObject):
-    def __init__(self, parameter: Parameter, from_val: any = None, to_val: any = None):
+    def __init__(self, parameter: Parameter, i_val: any = None, f_val: any = None):
         super(InterpParam, self).__init__(parameter)
-        self._from_val = from_val
-        self._to_val = to_val
-
-    def _interp(self, p: float) -> float:
-        if self._from_val is None or self._to_val is None:
-            return self._handle.get_value()
-
-        return self._from_val + (self._to_val - self._from_val) * p
+        self._i_value = i_val
+        self._f_value = f_val
 
     def _update(self, adj_progress: float, duration: float) -> None:
         self._handle.set_value(self._interp(adj_progress))
